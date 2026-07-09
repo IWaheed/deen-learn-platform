@@ -9,13 +9,23 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoursesSlugRouteImport } from './routes/courses.$slug'
 import { Route as AuthenticatedQuestionsRouteImport } from './routes/_authenticated/questions'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedLecturesIdRouteImport } from './routes/_authenticated/lectures.$id'
+import { Route as AuthenticatedAdminQuestionsRouteImport } from './routes/_authenticated/admin.questions'
+import { Route as AuthenticatedAdminCoursesIdRouteImport } from './routes/_authenticated/admin.courses.$id'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -40,59 +50,127 @@ const AuthenticatedQuestionsRoute = AuthenticatedQuestionsRouteImport.update({
   path: '/questions',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedLecturesIdRoute = AuthenticatedLecturesIdRouteImport.update({
   id: '/lectures/$id',
   path: '/lectures/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminQuestionsRoute =
+  AuthenticatedAdminQuestionsRouteImport.update({
+    id: '/questions',
+    path: '/questions',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCoursesIdRoute =
+  AuthenticatedAdminCoursesIdRouteImport.update({
+    id: '/courses/$id',
+    path: '/courses/$id',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/questions': typeof AuthenticatedQuestionsRoute
   '/courses/$slug': typeof CoursesSlugRoute
+  '/admin/questions': typeof AuthenticatedAdminQuestionsRoute
   '/lectures/$id': typeof AuthenticatedLecturesIdRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/courses/$id': typeof AuthenticatedAdminCoursesIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/questions': typeof AuthenticatedQuestionsRoute
   '/courses/$slug': typeof CoursesSlugRoute
+  '/admin/questions': typeof AuthenticatedAdminQuestionsRoute
   '/lectures/$id': typeof AuthenticatedLecturesIdRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/courses/$id': typeof AuthenticatedAdminCoursesIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/questions': typeof AuthenticatedQuestionsRoute
   '/courses/$slug': typeof CoursesSlugRoute
+  '/_authenticated/admin/questions': typeof AuthenticatedAdminQuestionsRoute
   '/_authenticated/lectures/$id': typeof AuthenticatedLecturesIdRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/courses/$id': typeof AuthenticatedAdminCoursesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/questions' | '/courses/$slug' | '/lectures/$id'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/sitemap.xml'
+    | '/admin'
+    | '/questions'
+    | '/courses/$slug'
+    | '/admin/questions'
+    | '/lectures/$id'
+    | '/admin/'
+    | '/admin/courses/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/questions' | '/courses/$slug' | '/lectures/$id'
+  to:
+    | '/'
+    | '/auth'
+    | '/sitemap.xml'
+    | '/questions'
+    | '/courses/$slug'
+    | '/admin/questions'
+    | '/lectures/$id'
+    | '/admin'
+    | '/admin/courses/$id'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/sitemap.xml'
+    | '/_authenticated/admin'
     | '/_authenticated/questions'
     | '/courses/$slug'
+    | '/_authenticated/admin/questions'
     | '/_authenticated/lectures/$id'
+    | '/_authenticated/admin/'
+    | '/_authenticated/admin/courses/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   CoursesSlugRoute: typeof CoursesSlugRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -128,6 +206,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedQuestionsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/lectures/$id': {
       id: '/_authenticated/lectures/$id'
       path: '/lectures/$id'
@@ -135,15 +227,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLecturesIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/questions': {
+      id: '/_authenticated/admin/questions'
+      path: '/questions'
+      fullPath: '/admin/questions'
+      preLoaderRoute: typeof AuthenticatedAdminQuestionsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/courses/$id': {
+      id: '/_authenticated/admin/courses/$id'
+      path: '/courses/$id'
+      fullPath: '/admin/courses/$id'
+      preLoaderRoute: typeof AuthenticatedAdminCoursesIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminQuestionsRoute: typeof AuthenticatedAdminQuestionsRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminCoursesIdRoute: typeof AuthenticatedAdminCoursesIdRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminQuestionsRoute: AuthenticatedAdminQuestionsRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminCoursesIdRoute: AuthenticatedAdminCoursesIdRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedQuestionsRoute: typeof AuthenticatedQuestionsRoute
   AuthenticatedLecturesIdRoute: typeof AuthenticatedLecturesIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedQuestionsRoute: AuthenticatedQuestionsRoute,
   AuthenticatedLecturesIdRoute: AuthenticatedLecturesIdRoute,
 }
@@ -155,6 +278,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   CoursesSlugRoute: CoursesSlugRoute,
 }
 export const routeTree = rootRouteImport
