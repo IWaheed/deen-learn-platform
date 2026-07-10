@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/use-auth";
 import heroImg from "@/assets/hero.jpg";
 
 export const Route = createFileRoute("/")({
@@ -13,6 +14,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const { user } = useAuth();
   const { data: courses = [] } = useQuery({
     queryKey: ["courses", "published"],
     queryFn: async () => {
@@ -50,11 +52,17 @@ function Index() {
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button asChild size="lg">
-                  <Link to="/">Browse courses</Link>
+                  <a href="#courses">Browse courses</a>
                 </Button>
-                <Button asChild size="lg" variant="outline">
-                  <Link to="/auth">Sign in to study</Link>
-                </Button>
+                {user ? (
+                  <Button asChild size="lg" variant="outline">
+                    <Link to="/questions">My questions</Link>
+                  </Button>
+                ) : (
+                  <Button asChild size="lg" variant="outline">
+                    <Link to="/auth">Sign in to study</Link>
+                  </Button>
+                )}
               </div>
             </div>
           </div>
