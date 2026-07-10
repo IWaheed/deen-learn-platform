@@ -31,28 +31,18 @@ export function SiteHeader() {
     <header className="border-b border-border/60 bg-parchment/80 backdrop-blur-md sticky top-0 z-40">
       <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="relative">
-            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-primary/80 text-primary-foreground grid place-items-center shadow-scholarly transition-transform group-hover:scale-105">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5">
-                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5A2.5 2.5 0 0 1 4 19.5Z" />
-                <path d="M9 2v20" />
-                <path d="M9 7h7" />
-                <path d="M9 11h7" />
-                <path d="M9 15h4" />
-              </svg>
-            </div>
-            <span className="absolute -bottom-1 -right-1 text-[7px] text-gold">۝</span>
+          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-primary/80 text-primary-foreground grid place-items-center shadow-scholarly transition-transform group-hover:scale-105">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5">
+              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5A2.5 2.5 0 0 1 4 19.5Z" />
+              <path d="M9 2v20" />
+              <path d="M9 7h7" />
+              <path d="M9 11h7" />
+              <path d="M9 15h4" />
+            </svg>
           </div>
-          <div className="leading-tight">
-            <div className="flex items-center gap-2">
-              <span className="font-serif text-lg font-semibold text-primary">Deen Learn Platform</span>
-              <span className="hidden sm:inline font-arabic text-base text-gold leading-none tracking-wide" dir="rtl">منبر العلم</span>
-            </div>
-            <div className="text-[10px] text-muted-foreground flex items-center gap-1.5">
-              <span>Islamic Studies</span>
-              <span className="text-gold">·</span>
-              <span className="font-arabic text-sm text-gold/70" dir="rtl">﷽</span>
-            </div>
+          <div className="leading-snug">
+            <div className="font-serif font-semibold text-primary">Deen Learn Platform</div>
+            <div className="text-xs text-muted-foreground">Islamic Studies</div>
           </div>
         </Link>
 
