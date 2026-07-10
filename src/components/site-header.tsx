@@ -35,7 +35,7 @@ export function SiteHeader() {
             <BookOpen className="h-4 w-4" />
           </div>
           <div className="leading-tight">
-            <div className="font-serif text-lg font-semibold text-primary">Nūr al-ʿIlm</div>
+            <div className="font-serif text-lg font-semibold text-primary">Deen Learn Platform</div>
             <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Islamic Studies</div>
           </div>
         </Link>

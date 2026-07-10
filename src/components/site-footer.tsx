@@ -5,7 +5,7 @@ export function SiteFooter() {
         <div className="font-serif italic">
           &ldquo;Seeking knowledge is an obligation upon every Muslim.&rdquo;
         </div>
-        <div>© {new Date().getFullYear()} Nūr al-ʿIlm. All rights reserved.</div>
+        <div>© {new Date().getFullYear()} Deen Learn Platform. All rights reserved.</div>
       </div>
     </footer>
   );

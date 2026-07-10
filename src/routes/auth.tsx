@@ -106,7 +106,7 @@ function AuthPage() {
           <div className="h-12 w-12 rounded-full bg-primary text-primary-foreground grid place-items-center shadow-scholarly mb-4">
             <BookOpen className="h-5 w-5" />
           </div>
-          <div className="text-xs uppercase tracking-[0.25em] text-gold ornament">Nūr al-ʿIlm</div>
+          <div className="text-xs uppercase tracking-[0.25em] text-gold ornament">Deen Learn Platform</div>
           <h1 className="mt-2 font-serif text-3xl text-primary">Enter the halaqah</h1>
           <p className="mt-1 text-sm text-muted-foreground">Sign in to access the lectures and notes.</p>
         </div>

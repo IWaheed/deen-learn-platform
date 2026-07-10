@@ -76,9 +76,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Nūr al-ʿIlm — Islamic Studies Courses" },
+      { title: "Deen Learn Platform — Islamic Studies Courses" },
       { name: "description", content: "Study classical Islamic sciences with recorded lectures, notes, and one-to-one Q&A with your teacher." },
-      { property: "og:title", content: "Nūr al-ʿIlm — Islamic Studies Courses" },
+      { property: "og:title", content: "Deen Learn Platform — Islamic Studies Courses" },
       { property: "og:description", content: "Recorded lectures, course documents, and direct Q&A with your teacher." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
