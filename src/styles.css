@@ -5,6 +5,11 @@
 @import "@fontsource/inter/400.css";
 @import "@fontsource/inter/500.css";
 @import "@fontsource/inter/600.css";
+@import "@fontsource/amiri/400.css";
+@import "@fontsource/amiri/700.css";
+@import "@fontsource/noto-sans-arabic/400.css";
+@import "@fontsource/noto-sans-arabic/500.css";
+@import "@fontsource/noto-sans-arabic/600.css";
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
@@ -149,7 +154,7 @@
 }
 
 @utility font-serif { font-family: var(--font-serif); }
-@utility font-urdu { font-family: "Noto Nastaliq Urdu", "Nafees", serif; }
+@utility font-arabic { font-family: "Amiri", "Noto Sans Arabic", serif; }
 @utility ornament {
   position: relative;
 }

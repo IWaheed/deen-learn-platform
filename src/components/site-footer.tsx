@@ -19,7 +19,7 @@ export function SiteFooter() {
             <div className="text-xs text-muted-foreground/60 mt-1">— Ibn Mājah, 224</div>
           </div>
           <div className="flex flex-col items-center md:items-end gap-1">
-            <span className="font-urdu text-xs" dir="rtl">{getHijriDate()}</span>
+            <span className="font-arabic text-sm leading-relaxed" dir="rtl">{getHijriDate()}</span>
             <span>© {new Date().getFullYear()} Deen Learn Platform</span>
           </div>
         </div>

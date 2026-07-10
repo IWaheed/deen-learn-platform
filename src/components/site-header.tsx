@@ -46,12 +46,12 @@ export function SiteHeader() {
           <div className="leading-tight">
             <div className="flex items-center gap-2">
               <span className="font-serif text-lg font-semibold text-primary">Deen Learn Platform</span>
-              <span className="hidden sm:inline text-xs font-urdu text-gold" dir="rtl">منبر العلم</span>
+              <span className="hidden sm:inline font-arabic text-base text-gold leading-none tracking-wide" dir="rtl">منبر العلم</span>
             </div>
             <div className="text-[10px] text-muted-foreground flex items-center gap-1.5">
               <span>Islamic Studies</span>
               <span className="text-gold">·</span>
-              <span className="font-urdu text-[9px]" dir="rtl">بسم اللہ الرحمن الرحیم</span>
+              <span className="font-arabic text-sm text-gold/70" dir="rtl">﷽</span>
             </div>
           </div>
         </Link>
