@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, useSearch, redirect } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { BookOpen } from "lucide-react";
@@ -30,6 +30,15 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [view, setView] = useState<"signin" | "signup" | "forgot" | "reset">("signin");
+  const [newPassword, setNewPassword] = useState("");
+
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") setView("reset");
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
 
   async function afterAuth() {
     navigate({ to: search.redirect ?? "/", replace: true });
@@ -68,6 +77,28 @@ function AuthPage() {
     await afterAuth();
   }
 
+  async function forgotPassword() {
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin,
+    });
+    setLoading(false);
+    if (error) return toast.error(error.message);
+    toast.success("Check your email for a password reset link.");
+    setView("signin");
+  }
+
+  async function updatePassword() {
+    if (newPassword.length < 6) return toast.error("Password must be at least 6 characters.");
+    setLoading(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setLoading(false);
+    if (error) return toast.error(error.message);
+    toast.success("Password updated successfully. You may now sign in.");
+    setView("signin");
+    setNewPassword("");
+  }
+
   return (
     <div className="min-h-screen grid place-items-center px-6 py-12 bg-parchment">
       <Card className="w-full max-w-md p-8 shadow-scholarly">
@@ -80,30 +111,62 @@ function AuthPage() {
           <p className="mt-1 text-sm text-muted-foreground">Sign in to access the lectures and notes.</p>
         </div>
 
-        <Button variant="outline" className="w-full" onClick={signInGoogle}>
-          Continue with Google
-        </Button>
-        <div className="flex items-center gap-3 my-5 text-xs text-muted-foreground">
-          <div className="h-px flex-1 bg-border" />or<div className="h-px flex-1 bg-border" />
-        </div>
+        {view === "reset" ? (
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">Enter your new password below.</p>
+            <div>
+              <Label>New password</Label>
+              <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} minLength={6} />
+            </div>
+            <Button className="w-full" onClick={updatePassword} disabled={loading}>
+              {loading ? "Updating..." : "Update password"}
+            </Button>
+          </div>
+        ) : view === "forgot" ? (
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">Enter your email and we'll send you a reset link.</p>
+            <div>
+              <Label>Email</Label>
+              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            </div>
+            <Button className="w-full" onClick={forgotPassword} disabled={loading}>
+              {loading ? "Sending..." : "Send reset link"}
+            </Button>
+            <button className="text-xs text-muted-foreground hover:underline mx-auto block" onClick={() => setView("signin")}>
+              Back to sign in
+            </button>
+          </div>
+        ) : (
+          <>
+            <Button variant="outline" className="w-full" onClick={signInGoogle}>
+              Continue with Google
+            </Button>
+            <div className="flex items-center gap-3 my-5 text-xs text-muted-foreground">
+              <div className="h-px flex-1 bg-border" />or<div className="h-px flex-1 bg-border" />
+            </div>
 
-        <Tabs defaultValue="signin">
-          <TabsList className="grid grid-cols-2 w-full">
-            <TabsTrigger value="signin">Sign in</TabsTrigger>
-            <TabsTrigger value="signup">Register</TabsTrigger>
-          </TabsList>
-          <TabsContent value="signin" className="space-y-3 mt-4">
-            <div><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-            <div><Label>Password</Label><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} /></div>
-            <Button className="w-full" onClick={signIn} disabled={loading}>Sign in</Button>
-          </TabsContent>
-          <TabsContent value="signup" className="space-y-3 mt-4">
-            <div><Label>Full name</Label><Input value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
-            <div><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-            <div><Label>Password</Label><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} /></div>
-            <Button className="w-full" onClick={signUp} disabled={loading}>Create account</Button>
-          </TabsContent>
-        </Tabs>
+            <Tabs value={view} onValueChange={(v) => setView(v as "signin" | "signup")}>
+              <TabsList className="grid grid-cols-2 w-full">
+                <TabsTrigger value="signin">Sign in</TabsTrigger>
+                <TabsTrigger value="signup">Register</TabsTrigger>
+              </TabsList>
+              <TabsContent value="signin" className="space-y-3 mt-4">
+                <div><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+                <div><Label>Password</Label><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} /></div>
+                <Button className="w-full" onClick={signIn} disabled={loading}>Sign in</Button>
+                <button className="text-xs text-muted-foreground hover:underline mx-auto block" onClick={() => setView("forgot")}>
+                  Forgot password?
+                </button>
+              </TabsContent>
+              <TabsContent value="signup" className="space-y-3 mt-4">
+                <div><Label>Full name</Label><Input value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
+                <div><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+                <div><Label>Password</Label><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} /></div>
+                <Button className="w-full" onClick={signUp} disabled={loading}>Create account</Button>
+              </TabsContent>
+            </Tabs>
+          </>
+        )}
       </Card>
     </div>
   );
