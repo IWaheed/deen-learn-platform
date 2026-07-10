@@ -11,13 +11,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/*
- * Scholarly Islamic design system.
- * Palette: warm parchment ivory, deep emerald, antique gold, ink.
- * Typography: Cormorant Garamond (headings) + Inter (body).
- * All colors are semantic tokens in oklch.
- */
-
 @theme inline {
   --font-serif: "Cormorant Garamond", ui-serif, Georgia, serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -156,6 +149,7 @@
 }
 
 @utility font-serif { font-family: var(--font-serif); }
+@utility font-urdu { font-family: "Noto Nastaliq Urdu", "Nafees", serif; }
 @utility ornament {
   position: relative;
 }
@@ -167,5 +161,86 @@
   background: var(--color-gold);
   vertical-align: middle;
   margin-right: 0.75rem;
+}
+
+/* Scroll-triggered fade animations */
+@utility animate-fade-in {
+  opacity: 0;
+  transform: translateY(1.5rem);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+.animate-fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@utility animate-fade-in-left {
+  opacity: 0;
+  transform: translateX(-2rem);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+.animate-fade-in-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@utility animate-fade-in-right {
+  opacity: 0;
+  transform: translateX(2rem);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+.animate-fade-in-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@utility animate-scale-in {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+.animate-scale-in.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Skeleton shimmer */
+@utility skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-muted) 25%,
+    var(--color-card) 50%,
+    var(--color-muted) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Islamic geometric pattern — 8-pointed star repeating */
+.geometric-pattern {
+  background-image:
+    radial-gradient(circle at 25% 25%, var(--color-gold) 0.5px, transparent 0.5px),
+    radial-gradient(circle at 75% 75%, var(--color-gold) 0.5px, transparent 0.5px),
+    radial-gradient(circle at 50% 50%, var(--color-primary) 0.3px, transparent 0.3px);
+  background-size: 48px 48px, 48px 48px, 24px 24px;
+  opacity: 0.5;
+}
+
+/* Gold divider */
+.gold-divider {
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-gold),
+    transparent
+  );
+  width: 6rem;
+  margin: 0 auto;
 }
 

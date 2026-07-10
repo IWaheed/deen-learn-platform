@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouter } from "@tanstack/react-router";
-import { BookOpen, LogOut, MessageSquare, ShieldCheck, User as UserIcon } from "lucide-react";
+import { LogOut, MessageSquare, ShieldCheck, User as UserIcon } from "lucide-react";
 import { useAuth } from "@/lib/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -28,15 +28,31 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="border-b border-border/60 bg-parchment/70 backdrop-blur-sm sticky top-0 z-40">
+    <header className="border-b border-border/60 bg-parchment/80 backdrop-blur-md sticky top-0 z-40">
       <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="h-9 w-9 rounded-full bg-primary text-primary-foreground grid place-items-center shadow-scholarly">
-            <BookOpen className="h-4 w-4" />
+        <Link to="/" className="flex items-center gap-3 group">
+          <div className="relative">
+            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-primary/80 text-primary-foreground grid place-items-center shadow-scholarly transition-transform group-hover:scale-105">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5">
+                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5A2.5 2.5 0 0 1 4 19.5Z" />
+                <path d="M9 2v20" />
+                <path d="M9 7h7" />
+                <path d="M9 11h7" />
+                <path d="M9 15h4" />
+              </svg>
+            </div>
+            <span className="absolute -bottom-1 -right-1 text-[7px] text-gold">۝</span>
           </div>
           <div className="leading-tight">
-            <div className="font-serif text-lg font-semibold text-primary">Deen Learn Platform</div>
-            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Islamic Studies</div>
+            <div className="flex items-center gap-2">
+              <span className="font-serif text-lg font-semibold text-primary">Deen Learn Platform</span>
+              <span className="hidden sm:inline text-xs font-urdu text-gold" dir="rtl">منبر العلم</span>
+            </div>
+            <div className="text-[10px] text-muted-foreground flex items-center gap-1.5">
+              <span>Islamic Studies</span>
+              <span className="text-gold">·</span>
+              <span className="font-urdu text-[9px]" dir="rtl">بسم اللہ الرحمن الرحیم</span>
+            </div>
           </div>
         </Link>
 
