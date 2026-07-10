@@ -55,10 +55,8 @@ function Index() {
           <div className="mx-auto max-w-6xl px-6 py-24 md:py-36">
             <AnimateIn animation="fade-in">
               <div className="max-w-2xl">
-                <div className="flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-gold font-medium">
-                  <span className="font-urdu text-sm" dir="rtl">بسم اللہ الرحمن الرحیم</span>
-                  <span className="w-8 h-px bg-gold/50" />
-                  <span>Traditional knowledge, digitally delivered</span>
+                <div className="text-xs uppercase tracking-[0.25em] text-gold font-medium">
+                  Traditional knowledge, digitally delivered
                 </div>
                 <h1 className="mt-6 font-serif text-5xl md:text-7xl leading-[1.05] text-primary">
                   Sit at the feet of<br />the scholars.
