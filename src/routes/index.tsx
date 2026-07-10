@@ -14,6 +14,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const { user } = useAuth();
   const { data: courses = [] } = useQuery({
     queryKey: ["courses", "published"],
     queryFn: async () => {
