@@ -138,7 +138,7 @@ function Index() {
                 <AnimateIn key={c.id} animation="fade-in" delay={i * 100}>
                   <Link to="/courses/$slug" params={{ slug: c.slug }} className="group block">
                     <Card className="overflow-hidden h-full bg-card border-border/60 shadow-scholarly transition-all hover:shadow-xl hover:-translate-y-1">
-                      <div className="aspect-[16/9] bg-gradient-to-br from-primary/10 to-gold/15 relative overflow-hidden">
+                      <div className="aspect-video bg-gradient-to-br from-primary/10 to-gold/15 relative overflow-hidden">
                         {c.cover_url ? (
                           <>
                             <img src={c.cover_url} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />

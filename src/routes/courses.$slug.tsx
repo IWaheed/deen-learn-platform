@@ -64,7 +64,7 @@ function CoursePage() {
         ) : course ? (
           <AnimateIn animation="fade-in">
             {course.cover_url && (
-              <div className="relative aspect-[21/9] rounded-xl overflow-hidden mb-8 border border-border/60 shadow-scholarly">
+              <div className="relative aspect-video rounded-xl overflow-hidden mb-8 border border-border/60 shadow-scholarly">
                 <img
                   src={course.cover_url}
                   alt=""
