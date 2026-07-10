@@ -52,11 +52,17 @@ function Index() {
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button asChild size="lg">
-                  <Link to="/">Browse courses</Link>
+                  <a href="#courses">Browse courses</a>
                 </Button>
-                <Button asChild size="lg" variant="outline">
-                  <Link to="/auth">Sign in to study</Link>
-                </Button>
+                {user ? (
+                  <Button asChild size="lg" variant="outline">
+                    <Link to="/questions">My questions</Link>
+                  </Button>
+                ) : (
+                  <Button asChild size="lg" variant="outline">
+                    <Link to="/auth">Sign in to study</Link>
+                  </Button>
+                )}
               </div>
             </div>
           </div>
