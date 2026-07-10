@@ -159,7 +159,7 @@
 @utility ornament {
   position: relative;
 }
-@utility ornament::before {
+.ornament::before {
   content: "";
   display: inline-block;
   width: 2rem;
@@ -168,3 +168,4 @@
   vertical-align: middle;
   margin-right: 0.75rem;
 }
+
