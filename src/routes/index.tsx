@@ -66,8 +66,8 @@ function Index() {
                   your teacher — a complete madrasah, wherever you are.
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <Button asChild size="lg" className="shadow-scholarly">
-                    <a href="#courses">Browse courses</a>
+                  <Button size="lg" className="shadow-scholarly" onClick={() => document.getElementById("courses")?.scrollIntoView({ behavior: "smooth" })}>
+                    Browse courses
                   </Button>
                   {user ? (
                     <Button asChild size="lg" variant="outline">

@@ -63,6 +63,16 @@ function CoursePage() {
           </div>
         ) : course ? (
           <AnimateIn animation="fade-in">
+            {course.cover_url && (
+              <div className="relative aspect-[21/9] rounded-xl overflow-hidden mb-8 border border-border/60 shadow-scholarly">
+                <img
+                  src={course.cover_url}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
+              </div>
+            )}
             <div className="flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-gold font-medium mb-2">
               <span>Course</span>
               <span className="w-8 h-px bg-gold/50" />
