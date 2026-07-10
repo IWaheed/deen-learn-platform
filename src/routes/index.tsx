@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/use-auth";
 import heroImg from "@/assets/hero.jpg";
 
 export const Route = createFileRoute("/")({
