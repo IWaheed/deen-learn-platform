@@ -142,7 +142,8 @@ function LectureRow({ lecture, onEdit, onDelete }: { lecture: any; onEdit: () =>
 
   const upload = useMutation({
     mutationFn: async (file: File) => {
-      const path = `${lecture.id}/${Date.now()}-${file.name}`;
+      const safeName = file.name.replace(/[/\\:*?"<>|&\s]+/g, '_');
+      const path = `${lecture.id}/${Date.now()}-${safeName}`;
       const { error: upErr } = await supabase.storage.from("lecture-docs").upload(path, file);
       if (upErr) throw upErr;
       const { error } = await supabase.from("lecture_documents").insert({
