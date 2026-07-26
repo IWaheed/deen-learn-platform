@@ -1,6 +1,6 @@
-import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Lock, PlayCircle, GraduationCap, CheckCircle } from "lucide-react";
+import { Lock, PlayCircle, GraduationCap, CheckCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/site-header";
@@ -18,6 +18,8 @@ import { LectureListSkeleton } from "@/components/skeleton";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Spinner } from "@/components/spinner";
 
+const GATED_SLUGS = ["quranic-sciences-zamzami"];
+
 export const Route = createFileRoute("/courses/$slug")({
   component: CoursePage,
   head: ({ loaderData }: any) => ({
@@ -34,18 +36,22 @@ export const Route = createFileRoute("/courses/$slug")({
 
 function CoursePage() {
   const { slug } = Route.useParams();
-  const { user, loading: authLoading } = useAuth();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
   const [rollInput, setRollInput] = useState("");
   const [enrolling, setEnrolling] = useState(false);
+
+  const isGated = GATED_SLUGS.includes(slug);
+
+  const enrolledCourses: string[] = user?.user_metadata?.enrolled_courses ?? [];
+  const isEnrolled = enrolledCourses.includes(slug);
 
   const { data: course, isLoading: courseLoading } = useQuery({
     queryKey: ["course", slug],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("courses")
-        .select("id, title, description, cover_url, is_published, requires_enrollment")
+        .select("id, title, description, cover_url")
         .eq("slug", slug)
         .maybeSingle();
       if (error) throw error;
@@ -54,23 +60,9 @@ function CoursePage() {
     },
   });
 
-  const { data: enrollment, isLoading: enrollmentLoading } = useQuery({
-    queryKey: ["enrollment", course?.id, user?.id],
-    enabled: !!course?.id && !!user?.id && course?.requires_enrollment,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("course_enrollments")
-        .select("id")
-        .eq("course_id", course!.id)
-        .eq("user_id", user!.id)
-        .maybeSingle();
-      return !!data;
-    },
-  });
-
   const { data: lectures = [], isLoading: lecturesLoading } = useQuery({
     queryKey: ["lectures", course?.id],
-    enabled: !!course?.id && (!course?.requires_enrollment || enrollment),
+    enabled: !!course?.id && !(isGated && !isEnrolled),
     queryFn: async () => {
       const { data, error } = await supabase
         .from("lectures")
@@ -86,10 +78,11 @@ function CoursePage() {
     if (!course || !user || !rollInput.trim()) return;
     setEnrolling(true);
     try {
-      await enrollInCourse({ data: { courseId: course.id, rollNumber: rollInput.trim(), userId: user.id } });
+      await enrollInCourse({ data: { courseSlug: slug, rollNumber: rollInput.trim(), userId: user.id } });
+      await supabase.auth.getUser();
       toast.success("Successfully enrolled in the course!");
-      queryClient.invalidateQueries({ queryKey: ["enrollment", course.id, user.id] });
-      queryClient.invalidateQueries({ queryKey: ["lectures", course.id] });
+      queryClient.invalidateQueries({ queryKey: ["course", slug] });
+      window.location.reload();
     } catch (err: any) {
       toast.error(err.message ?? "Failed to enroll");
     } finally {
@@ -97,8 +90,7 @@ function CoursePage() {
     }
   }
 
-  const showEnrollmentPrompt = course?.requires_enrollment && !!user && !enrollmentLoading && !enrollment;
-  const isGated = course?.requires_enrollment;
+  const showEnrollPrompt = isGated && !!user && !isEnrolled;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -132,7 +124,7 @@ function CoursePage() {
               {course.title}
             </h1>
             <div className="flex items-center gap-3 mt-3">
-              {isGated && (
+              {isGated && !isEnrolled && (
                 <Badge variant="secondary" className="text-xs border-amber-400 text-amber-700 bg-amber-50 dark:bg-amber-950/30 dark:text-amber-400">
                   <Lock className="h-3 w-3 mr-1" /> Enrollment required
                 </Badge>
@@ -142,7 +134,7 @@ function CoursePage() {
                   {lectures.length} {lectures.length === 1 ? "lecture" : "lectures"}
                 </Badge>
               )}
-              {enrollment && (
+              {isEnrolled && (
                 <Badge className="text-xs bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800">
                   <CheckCircle className="h-3 w-3 mr-1" /> Enrolled
                 </Badge>
@@ -154,7 +146,7 @@ function CoursePage() {
           </AnimateIn>
         ) : null}
 
-        {showEnrollmentPrompt && (
+        {showEnrollPrompt && (
           <AnimateIn animation="fade-in" delay={100}>
             <Card className="mt-10 p-8 border-primary/20 bg-gradient-to-br from-primary/5 to-gold/5">
               <div className="flex items-center gap-3 mb-4">
@@ -200,17 +192,8 @@ function CoursePage() {
           </AnimateIn>
         )}
 
-        {/* Show lecture count badge only after enrolled */}
-        {enrollment && (
-          <div className="mt-6">
-            <Badge variant="secondary" className="text-xs">
-              {lectures.length} {lectures.length === 1 ? "lecture" : "lectures"}
-            </Badge>
-          </div>
-        )}
-
         <div className="mt-12">
-          {(isGated && !enrollment) ? null : (
+          {isGated && !isEnrolled ? null : (
             <>
               <AnimateIn animation="fade-in" delay={100}>
                 <h2 className="font-serif text-2xl text-primary mb-4">Lectures</h2>
