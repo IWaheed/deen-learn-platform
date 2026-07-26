@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { BookMarked, Inbox } from "lucide-react";
+import { BookMarked, Inbox, Users } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { useAuth } from "@/lib/use-auth";
 
@@ -41,6 +41,11 @@ function AdminLayout() {
             activeProps={{ className: "border-primary text-primary" }}
             className="py-3 border-b-2 border-transparent hover:text-primary flex items-center gap-1.5">
             <Inbox className="h-4 w-4" /> Questions
+          </Link>
+          <Link to="/admin/students"
+            activeProps={{ className: "border-primary text-primary" }}
+            className="py-3 border-b-2 border-transparent hover:text-primary flex items-center gap-1.5">
+            <Users className="h-4 w-4" /> Students
           </Link>
         </div>
       </div>
