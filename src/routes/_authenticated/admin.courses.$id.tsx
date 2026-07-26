@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+import { Spinner } from "@/components/spinner";
 
 export const Route = createFileRoute("/_authenticated/admin/courses/$id")({
   component: ManageCourse,
@@ -96,7 +98,7 @@ function ManageCourse() {
 
       <div className="space-y-3">
         {lectures.map((l) => (
-          <LectureRow key={l.id} lecture={l} onEdit={() => openEdit(l)} onDelete={() => confirm("Delete this lecture?") && del.mutate(l.id)} />
+          <LectureRow key={l.id} lecture={l} onEdit={() => openEdit(l)} onDelete={() => del.mutate(l.id)} />
         ))}
         {lectures.length === 0 && (
           <Card className="p-8 text-center border-dashed text-muted-foreground italic font-serif">No lectures yet.</Card>
@@ -114,7 +116,10 @@ function ManageCourse() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button onClick={() => save.mutate()} disabled={save.isPending || !form.title.trim()}>Save</Button>
+            <Button onClick={() => save.mutate()} disabled={save.isPending || !form.title.trim()}>
+              {save.isPending ? <Spinner className="h-4 w-4" /> : null}
+              Save
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -170,7 +175,9 @@ function LectureRow({ lecture, onEdit, onDelete }: { lecture: any; onEdit: () =>
         </div>
         <div className="flex gap-1">
           <Button size="sm" variant="ghost" onClick={onEdit}><Pencil className="h-4 w-4" /></Button>
-          <Button size="sm" variant="ghost" onClick={onDelete}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+          <ConfirmDialog title="Delete this lecture?" description="This will permanently remove the lecture and all its documents." onConfirm={onDelete}>
+            <Button size="sm" variant="ghost"><Trash2 className="h-4 w-4 text-destructive" /></Button>
+          </ConfirmDialog>
         </div>
       </div>
 

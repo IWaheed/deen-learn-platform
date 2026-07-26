@@ -14,9 +14,25 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/use-auth";
 import { AnimateIn } from "@/components/animate-in";
 import { LecturePageSkeleton } from "@/components/skeleton";
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { Spinner } from "@/components/spinner";
 
 export const Route = createFileRoute("/_authenticated/lectures/$id")({
   component: LecturePage,
+  loader: async ({ params }) => {
+    const { data } = await supabase
+      .from("lectures")
+      .select("title, courses(title)")
+      .eq("id", params.id)
+      .maybeSingle();
+    return data;
+  },
+  head: ({ loaderData }) => ({
+    meta: [
+      { title: loaderData?.title ? `${loaderData.title} — Deen Learn Platform` : "Lecture — Deen Learn Platform" },
+      { name: "description", content: `Lecture: ${loaderData?.title ?? ""} — part of ${(loaderData as any)?.courses?.title ?? "Deen Learn Platform"}` },
+    ],
+  }),
 });
 
 function extractYouTubeId(url?: string | null): string | null {
@@ -115,12 +131,13 @@ function LecturePage() {
           <LecturePageSkeleton />
         ) : lecture ? (
           <>
-            {/* Breadcrumb */}
-            {lecture.courses && (
-              <Link to="/courses/$slug" params={{ slug: lecture.courses.slug }} className="text-sm text-muted-foreground hover:text-primary inline-flex items-center gap-1.5 mb-6 transition-colors">
-                <ArrowLeft className="h-3.5 w-3.5" /> {lecture.courses.title}
-              </Link>
-            )}
+            <Breadcrumbs
+              crumbs={[
+                { label: "Home", to: "/" },
+                { label: (lecture.courses as any)?.title ?? "Course", to: "/courses/$slug", params: { slug: (lecture.courses as any)?.slug } },
+                { label: lecture.title },
+              ]}
+            />
 
             <AnimateIn animation="fade-in">
               <div className="flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-gold font-medium mb-2">
@@ -214,7 +231,8 @@ function LecturePage() {
                   <div><Label>Your question</Label><Textarea rows={5} value={body} onChange={(e) => setBody(e.target.value)} maxLength={2000} /></div>
                   <div className="flex justify-end">
                     <Button onClick={() => ask.mutate()} disabled={ask.isPending || !subject.trim() || !body.trim()} className="shadow-scholarly">
-                      <Send className="h-4 w-4 mr-1.5" /> Send question
+                      {ask.isPending ? <Spinner className="h-4 w-4 mr-1.5" /> : <Send className="h-4 w-4 mr-1.5" />}
+                      Send question
                     </Button>
                   </div>
                 </Card>

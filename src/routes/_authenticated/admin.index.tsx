@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,9 +11,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+import { Spinner } from "@/components/spinner";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   component: AdminCourses,
+  head: () => ({
+    meta: [
+      { title: "Admin — Courses — Deen Learn Platform" },
+      { name: "description", content: "Manage courses and lectures." },
+    ],
+  }),
 });
 
 function slugify(s: string) {
@@ -86,6 +94,12 @@ function AdminCourses() {
         <Button onClick={openNew}><Plus className="h-4 w-4 mr-1.5" /> New course</Button>
       </div>
 
+      {courses.length === 0 ? (
+        <Card className="p-12 text-center border-dashed">
+          <BookOpen className="h-10 w-10 mx-auto text-muted-foreground" />
+          <p className="mt-3 font-serif italic text-muted-foreground">No courses yet. Click &ldquo;New course&rdquo; to start.</p>
+        </Card>
+      ) : (
       <div className="grid md:grid-cols-2 gap-4">
         {courses.map((c) => (
           <Card key={c.id} className="p-5">
@@ -102,11 +116,14 @@ function AdminCourses() {
             <div className="flex gap-2 mt-4">
               <Button asChild size="sm" variant="secondary"><Link to="/admin/courses/$id" params={{ id: c.id }}>Manage lectures</Link></Button>
               <Button size="sm" variant="ghost" onClick={() => openEdit(c)}><Pencil className="h-4 w-4" /></Button>
-              <Button size="sm" variant="ghost" onClick={() => confirm(`Delete "${c.title}"?`) && del.mutate(c.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+              <ConfirmDialog title={`Delete "${c.title}"?`} description="This will permanently remove the course and all its lectures." onConfirm={() => del.mutate(c.id)}>
+                <Button size="sm" variant="ghost"><Trash2 className="h-4 w-4 text-destructive" /></Button>
+              </ConfirmDialog>
             </div>
           </Card>
         ))}
       </div>
+      )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
@@ -120,7 +137,10 @@ function AdminCourses() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button onClick={() => save.mutate()} disabled={save.isPending || !form.title.trim()}>Save</Button>
+            <Button onClick={() => save.mutate()} disabled={save.isPending || !form.title.trim()}>
+              {save.isPending ? <Spinner className="h-4 w-4" /> : null}
+              Save
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

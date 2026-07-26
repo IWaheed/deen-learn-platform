@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-bzQ4Vb5N.js";import{s as t}from"./button-Bh7tF5ED.js";var n=t(`loader-circle`,[[`path`,{d:`M21 12a9 9 0 1 1-6.219-8.56`,key:`13zald`}]]),r=e();function i({className:e=`h-4 w-4`}){return(0,r.jsx)(n,{className:`animate-spin ${e}`})}export{i as t};

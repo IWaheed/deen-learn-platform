@@ -14,6 +14,12 @@ import heroImg from "@/assets/hero.jpg";
 
 export const Route = createFileRoute("/")({
   component: Index,
+  head: () => ({
+    meta: [
+      { title: "Deen Learn Platform — Islamic Studies Courses" },
+      { name: "description", content: "Study classical Islamic sciences with recorded lectures, notes, and one-to-one Q&A with your teacher." },
+    ],
+  }),
 });
 
 function Index() {

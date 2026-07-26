@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      course_enrollments: {
+        Row: {
+          course_id: string
+          enrolled_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          course_id: string
+          enrolled_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          course_id?: string
+          enrolled_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_enrollments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_enrollments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       courses: {
         Row: {
           cover_url: string | null
@@ -21,6 +57,7 @@ export type Database = {
           description: string | null
           id: string
           is_published: boolean
+          requires_enrollment: boolean
           slug: string
           title: string
           updated_at: string
@@ -31,6 +68,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_published?: boolean
+          requires_enrollment?: boolean
           slug: string
           title: string
           updated_at?: string
@@ -41,6 +79,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_published?: boolean
+          requires_enrollment?: boolean
           slug?: string
           title?: string
           updated_at?: string
@@ -128,16 +167,19 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          roll_number: string
         }
         Insert: {
           created_at?: string
           full_name?: string | null
           id: string
+          roll_number?: string
         }
         Update: {
           created_at?: string
           full_name?: string | null
           id?: string
+          roll_number?: string
         }
         Relationships: []
       }
@@ -211,6 +253,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      next_roll_number: {
+        Args: Record<string, never>
+        Returns: string
       }
     }
     Enums: {

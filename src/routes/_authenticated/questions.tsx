@@ -9,6 +9,12 @@ import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/_authenticated/questions")({
   component: QuestionsPage,
+  head: () => ({
+    meta: [
+      { title: "My Questions — Deen Learn Platform" },
+      { name: "description", content: "View your private questions and teacher replies." },
+    ],
+  }),
 });
 
 function QuestionsPage() {

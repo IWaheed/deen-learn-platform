@@ -2,15 +2,22 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Inbox } from "lucide-react";
+import { Inbox, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/spinner";
 
 export const Route = createFileRoute("/_authenticated/admin/questions")({
   component: AdminQuestions,
+  head: () => ({
+    meta: [
+      { title: "Admin — Questions — Deen Learn Platform" },
+      { name: "description", content: "Review and reply to student questions." },
+    ],
+  }),
 });
 
 function AdminQuestions() {
@@ -65,17 +72,18 @@ function AdminQuestions() {
                 onChange={(e) => setDrafts({ ...drafts, [q.id]: e.target.value })}
               />
               <div className="flex justify-end mt-2">
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    const answer = (drafts[q.id] ?? q.answer ?? "").trim();
-                    if (!answer) return toast.error("Reply cannot be empty");
-                    reply.mutate({ id: q.id, answer });
-                  }}
-                  disabled={reply.isPending}
-                >
-                  {q.answer ? "Update reply" : "Send reply"}
-                </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      const answer = (drafts[q.id] ?? q.answer ?? "").trim();
+                      if (!answer) return toast.error("Reply cannot be empty");
+                      reply.mutate({ id: q.id, answer });
+                    }}
+                    disabled={reply.isPending}
+                  >
+                    {reply.isPending ? <Spinner className="h-4 w-4 mr-1.5" /> : <Send className="h-4 w-4 mr-1.5" />}
+                    {q.answer ? "Update reply" : "Send reply"}
+                  </Button>
               </div>
             </div>
             <div className="mt-2 text-xs text-muted-foreground">{new Date(q.created_at).toLocaleString()}</div>
