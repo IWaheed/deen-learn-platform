@@ -30,11 +30,15 @@ export const loginWithRollNumber = createServerFn({ method: "POST" })
       email,
     });
 
-    if (linkError || !linkData?.properties?.email_otp) throw new Error("Login failed");
+    if (linkError || !linkData?.properties?.action_link) throw new Error("Login failed");
+
+    const url = new URL(linkData.properties.action_link);
+    const token = url.searchParams.get("token");
+    if (!token) throw new Error("Login failed");
 
     return {
       valid: true,
-      token: linkData.properties.email_otp,
+      token,
       email,
     };
   });
