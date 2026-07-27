@@ -25,8 +25,10 @@ export const registerForCourse = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: existing } = await supabaseAdmin.auth.admin.getUserByEmail(input.email);
-    const existingUser = existing?.user;
+    const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
+    const existingUser = existingUsers?.users.find(
+      (u) => u.email?.toLowerCase() === input.email.toLowerCase(),
+    ) ?? null;
 
     let userId: string;
     let rollNumber: string;

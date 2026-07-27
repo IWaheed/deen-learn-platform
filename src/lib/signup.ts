@@ -9,8 +9,11 @@ export const signUpUser = createServerFn({ method: "POST" })
     const { email, password, fullName, rollNumber } = data;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: existing } = await supabaseAdmin.auth.admin.getUserByEmail(email);
-    if (existing?.user) throw new Error("An account with this email already exists");
+    const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
+    const existing = existingUsers?.users.find(
+      (u) => u.email?.toLowerCase() === email.toLowerCase(),
+    );
+    if (existing) throw new Error("An account with this email already exists");
 
     const { error } = await supabaseAdmin.auth.admin.createUser({
       email,
