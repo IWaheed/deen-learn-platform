@@ -48,7 +48,7 @@ export const Route = createFileRoute("/courses/$slug")({
 
 function CoursePage() {
   const { slug } = Route.useParams();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const queryClient = useQueryClient();
   const [rollInput, setRollInput] = useState("");
   const [enrolling, setEnrolling] = useState(false);
@@ -57,6 +57,7 @@ function CoursePage() {
 
   const enrolledCourses: string[] = user?.user_metadata?.enrolled_courses ?? [];
   const isEnrolled = enrolledCourses.includes(slug);
+  const hasAccess = isAdmin || isEnrolled;
 
   const { data: course, isLoading: courseLoading } = useQuery({
     queryKey: ["course", slug],
@@ -74,7 +75,7 @@ function CoursePage() {
 
   const { data: lectures = [], isLoading: lecturesLoading } = useQuery({
     queryKey: ["lectures", course?.id],
-    enabled: !!course?.id && !(isGated && !isEnrolled),
+    enabled: !!course?.id && !(isGated && !hasAccess),
     queryFn: async () => {
       const { data, error } = await supabase
         .from("lectures")
@@ -93,10 +94,15 @@ function CoursePage() {
       await enrollInCourse({
         data: { courseSlug: slug, rollNumber: rollInput.trim(), userId: user.id },
       });
-      await supabase.auth.getUser();
+      const { data: refreshed } = await supabase.auth.refreshSession();
+      if (refreshed?.user) {
+        const enrolled: string[] = refreshed.user.user_metadata?.enrolled_courses ?? [];
+        if (!enrolled.includes(slug)) {
+          await supabase.auth.getUser();
+        }
+      }
       toast.success("Successfully enrolled in the course!");
       queryClient.invalidateQueries({ queryKey: ["course", slug] });
-      window.location.reload();
     } catch (err: any) {
       toast.error(err.message ?? "Failed to enroll");
     } finally {
@@ -104,7 +110,7 @@ function CoursePage() {
     }
   }
 
-  const showEnrollPrompt = isGated && !!user && !isEnrolled;
+  const showEnrollPrompt = isGated && !!user && !hasAccess;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -134,7 +140,7 @@ function CoursePage() {
               {course.title}
             </h1>
             <div className="flex items-center gap-3 mt-3">
-              {isGated && !isEnrolled && (
+              {isGated && !hasAccess && (
                 <Badge
                   variant="secondary"
                   className="text-xs border-amber-400 text-amber-700 bg-amber-50 dark:bg-amber-950/30 dark:text-amber-400"
@@ -219,7 +225,7 @@ function CoursePage() {
         )}
 
         <div className="mt-12">
-          {isGated && !isEnrolled ? null : (
+          {isGated && !hasAccess ? null : (
             <>
               <AnimateIn animation="fade-in" delay={100}>
                 <h2 className="font-serif text-2xl text-primary mb-4">Lectures</h2>
