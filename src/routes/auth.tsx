@@ -100,27 +100,31 @@ function AuthPage() {
     if (!rollLoginRoll.trim()) return toast.error("Enter your roll number");
     if (!rollLoginEmail.trim()) return toast.error("Enter your email");
     setLoading(true);
+    try {
+      const result = await loginWithRollNumber({ data: {
+        rollNumber: rollLoginRoll.trim(),
+        email: rollLoginEmail.trim(),
+      } });
 
-    const result = await loginWithRollNumber({ data: {
-      rollNumber: rollLoginRoll.trim(),
-      email: rollLoginEmail.trim(),
-    } });
+      setLoading(false);
 
-    setLoading(false);
+      if (!result.valid) {
+        return toast.error("Roll number and email do not match our records");
+      }
 
-    if (!result.valid) {
-      return toast.error("Roll number and email do not match our records");
+      const { error } = await supabase.auth.setSession({
+        access_token: result.accessToken,
+        refresh_token: result.refreshToken,
+      });
+
+      if (error) return toast.error(error.message);
+
+      toast.success("As-salāmu ʿalaykum. Welcome back.");
+      await afterAuth();
+    } catch (err) {
+      setLoading(false);
+      toast.error(err instanceof Error ? err.message : "Login failed");
     }
-
-    const { error } = await supabase.auth.setSession({
-      access_token: result.accessToken,
-      refresh_token: result.refreshToken,
-    });
-
-    if (error) return toast.error(error.message);
-
-    toast.success("As-salāmu ʿalaykum. Welcome back.");
-    await afterAuth();
   }
 
   async function signUp() {
