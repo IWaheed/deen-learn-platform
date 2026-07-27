@@ -25,44 +25,28 @@ export const loginWithRollNumber = createServerFn({ method: "POST" })
       return { valid: false };
     }
 
-    const SUPABASE_URL = process.env.SUPABASE_URL!;
-    const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY!;
-
-    const linkRes = await fetch(`${SUPABASE_URL}/auth/v1/admin/generate`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ type: "magiclink", email }),
+    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+      type: "magiclink",
+      email,
     });
 
-    if (!linkRes.ok) throw new Error("Login failed");
+    if (linkError || !linkData?.properties?.action_link) throw new Error("Login failed");
 
-    const linkData = await linkRes.json();
-    const actionLink = linkData.properties?.action_link as string;
-    if (!actionLink) throw new Error("Login failed");
-
-    const url = new URL(actionLink);
+    const url = new URL(linkData.properties.action_link);
     const token = url.searchParams.get("token");
     if (!token) throw new Error("Login failed");
 
-    const verifyRes = await fetch(`${SUPABASE_URL}/auth/v1/verify`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ type: "magiclink", token, email }),
+    const { data: verifyResult, error: verifyError } = await supabaseAdmin.auth.verifyOtp({
+      type: "magiclink",
+      token,
+      email,
     });
 
-    if (!verifyRes.ok) throw new Error("Login failed");
-
-    const session = await verifyRes.json();
+    if (verifyError || !verifyResult?.session) throw new Error("Login failed");
 
     return {
       valid: true,
-      accessToken: session.access_token,
-      refreshToken: session.refresh_token,
+      accessToken: verifyResult.session.access_token,
+      refreshToken: verifyResult.session.refresh_token,
     };
   });
