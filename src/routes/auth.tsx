@@ -112,9 +112,10 @@ function AuthPage() {
         return toast.error("Roll number and email do not match our records");
       }
 
-      const { error } = await supabase.auth.setSession({
-        access_token: result.accessToken,
-        refresh_token: result.refreshToken,
+      const { error } = await supabase.auth.verifyOtp({
+        type: "magiclink",
+        token: result.token,
+        email: result.email,
       });
 
       if (error) return toast.error(error.message);

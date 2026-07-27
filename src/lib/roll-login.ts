@@ -30,23 +30,11 @@ export const loginWithRollNumber = createServerFn({ method: "POST" })
       email,
     });
 
-    if (linkError || !linkData?.properties?.action_link) throw new Error("Login failed");
-
-    const url = new URL(linkData.properties.action_link);
-    const token = url.searchParams.get("token");
-    if (!token) throw new Error("Login failed");
-
-    const { data: verifyResult, error: verifyError } = await supabaseAdmin.auth.verifyOtp({
-      type: "magiclink",
-      token,
-      email,
-    });
-
-    if (verifyError || !verifyResult?.session) throw new Error("Login failed");
+    if (linkError || !linkData?.properties?.email_otp) throw new Error("Login failed");
 
     return {
       valid: true,
-      accessToken: verifyResult.session.access_token,
-      refreshToken: verifyResult.session.refresh_token,
+      token: linkData.properties.email_otp,
+      email,
     };
   });
