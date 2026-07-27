@@ -66,7 +66,7 @@ function RegisterCoursePage() {
 
     setLoading(true);
     try {
-      const result = await registerForCourse({
+      const result = await registerForCourse({ data: {
         fullNameEn: fullNameEn.trim(),
         fullNameUr: fullNameUr.trim(),
         email: email.trim(),
@@ -79,7 +79,7 @@ function RegisterCoursePage() {
         howHeard: howHeard.trim(),
         completedLevel1,
         promiseToParticipate,
-      });
+      } });
       setResultRoll(result.rollNumber);
       setShowSuccess(true);
     } catch (err) {

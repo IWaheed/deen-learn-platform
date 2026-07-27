@@ -101,10 +101,10 @@ function AuthPage() {
     if (!rollLoginEmail.trim()) return toast.error("Enter your email");
     setLoading(true);
 
-    const result = await loginWithRollNumber({
+    const result = await loginWithRollNumber({ data: {
       rollNumber: rollLoginRoll.trim(),
       email: rollLoginEmail.trim(),
-    });
+    } });
 
     setLoading(false);
 
@@ -132,7 +132,7 @@ function AuthPage() {
       return toast.error("Failed to generate roll number. Please try again.");
     }
     try {
-      await signUpUser({ email, password, fullName, rollNumber: roll });
+      await signUpUser({ data: { email, password, fullName, rollNumber: roll } });
     } catch (err) {
       setLoading(false);
       return toast.error(err instanceof Error ? err.message : "Registration failed");
