@@ -217,7 +217,7 @@ function RegisterCoursePage() {
               <Input
                 value={scholarsListenedTo}
                 onChange={(e) => setScholarsListenedTo(e.target.value)}
-                placeholder="e.g. Mufti Taqi Usmani, Dr. Zakir Naik, etc."
+                placeholder="e.g. Shaykh Salih al-Fawzan, etc."
               />
             </Field>
 
