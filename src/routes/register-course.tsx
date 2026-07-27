@@ -53,8 +53,8 @@ function RegisterCoursePage() {
     if (!fullNameEn.trim()) return toast.error("Full name in English is required");
     if (!fullNameUr.trim()) return toast.error("Full name in Urdu is required");
     if (!email.trim()) return toast.error("Email is required");
-    if (!password.trim()) return toast.error("Password is required");
-    if (password.length < 6) return toast.error("Password must be at least 6 characters");
+    if (password && password.length < 6)
+      return toast.error("Password must be at least 6 characters");
     if (!age.trim()) return toast.error("Age is required");
     if (!phoneNumber.trim()) return toast.error("Phone number is required");
     if (!education.trim()) return toast.error("Education is required");

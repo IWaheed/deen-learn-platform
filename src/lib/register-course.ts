@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import crypto from "crypto";
 
 const COURSE_SLUG = "uloome-ul-quran";
 
@@ -8,7 +9,7 @@ export const registerForCourse = createServerFn({ method: "POST" })
       fullNameEn: string;
       fullNameUr: string;
       email: string;
-      password: string;
+      password?: string;
       age: string;
       phoneNumber: string;
       education: string;
@@ -26,14 +27,17 @@ export const registerForCourse = createServerFn({ method: "POST" })
     const existingUser = existing?.user;
 
     let userId: string;
+    let rollNumber: string;
 
     if (existingUser) {
       userId = existingUser.id;
-      await supabaseAdmin.auth.admin.updateUserById(userId, { password: data.password });
+      const existingMeta = existingUser.user_metadata ?? {};
+      rollNumber = (existingMeta.roll_number as string) ?? "";
     } else {
+      const pw = data.password || crypto.randomUUID();
       const { data: userData, error: createError } = await supabaseAdmin.auth.admin.createUser({
         email: data.email,
-        password: data.password,
+        password: pw,
         email_confirm: true,
         user_metadata: { full_name: data.fullNameEn },
       });
@@ -44,16 +48,18 @@ export const registerForCourse = createServerFn({ method: "POST" })
       userId = userData.user.id;
     }
 
-    const { data: allUsers } = await supabaseAdmin.auth.admin.listUsers();
-    let maxRoll = 3030000;
-    for (const u of allUsers?.users ?? []) {
-      const rn = u.user_metadata?.roll_number as string | undefined;
-      if (rn) {
-        const num = parseInt(rn, 10);
-        if (!isNaN(num) && num > maxRoll) maxRoll = num;
+    if (!rollNumber) {
+      const { data: allUsers } = await supabaseAdmin.auth.admin.listUsers();
+      let maxRoll = 3030000;
+      for (const u of allUsers?.users ?? []) {
+        const rn = u.user_metadata?.roll_number as string | undefined;
+        if (rn) {
+          const num = parseInt(rn, 10);
+          if (!isNaN(num) && num > maxRoll) maxRoll = num;
+        }
       }
+      rollNumber = String(maxRoll + 1);
     }
-    const nextRoll = String(maxRoll + 1);
 
     const currentMeta = existingUser?.user_metadata ?? {};
     const enrolled: string[] = currentMeta.enrolled_courses ?? [];
@@ -66,7 +72,7 @@ export const registerForCourse = createServerFn({ method: "POST" })
       user_metadata: {
         ...currentMeta,
         full_name: data.fullNameEn,
-        roll_number: nextRoll,
+        roll_number: rollNumber,
         enrolled_courses: enrolled,
         reg_name_ur: data.fullNameUr,
         reg_age: data.age,
@@ -83,5 +89,5 @@ export const registerForCourse = createServerFn({ method: "POST" })
 
     if (metaError) throw new Error("Failed to update user metadata");
 
-    return { rollNumber: nextRoll, email: data.email };
+    return { rollNumber, email: data.email };
   });

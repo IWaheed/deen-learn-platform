@@ -18,18 +18,30 @@ import { LectureListSkeleton } from "@/components/skeleton";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Spinner } from "@/components/spinner";
 
-const GATED_SLUGS = ["quranic-sciences-zamzami"];
+const GATED_SLUGS = ["quranic-sciences-zamzami", "uloome-ul-quran"];
 
 export const Route = createFileRoute("/courses/$slug")({
   component: CoursePage,
   head: ({ loaderData }: any) => ({
     meta: [
-      { title: loaderData?.title ? `${loaderData.title} — Deen Learn Platform` : "Course — Deen Learn Platform" },
-      { name: "description", content: loaderData?.description ?? "Study classical Islamic sciences with recorded lectures." },
+      {
+        title: loaderData?.title
+          ? `${loaderData.title} — Deen Learn Platform`
+          : "Course — Deen Learn Platform",
+      },
+      {
+        name: "description",
+        content:
+          loaderData?.description ?? "Study classical Islamic sciences with recorded lectures.",
+      },
     ],
   }),
   loader: async ({ params }) => {
-    const { data } = await supabase.from("courses").select("title, description").eq("slug", params.slug).maybeSingle();
+    const { data } = await supabase
+      .from("courses")
+      .select("title, description")
+      .eq("slug", params.slug)
+      .maybeSingle();
     return data ?? undefined;
   },
 });
@@ -78,7 +90,9 @@ function CoursePage() {
     if (!course || !user || !rollInput.trim()) return;
     setEnrolling(true);
     try {
-      await enrollInCourse({ data: { courseSlug: slug, rollNumber: rollInput.trim(), userId: user.id } });
+      await enrollInCourse({
+        data: { courseSlug: slug, rollNumber: rollInput.trim(), userId: user.id },
+      });
       await supabase.auth.getUser();
       toast.success("Successfully enrolled in the course!");
       queryClient.invalidateQueries({ queryKey: ["course", slug] });
@@ -108,11 +122,7 @@ function CoursePage() {
           <AnimateIn animation="fade-in">
             {course.cover_url && (
               <div className="relative aspect-video rounded-xl overflow-hidden mb-8 border border-border/60 shadow-scholarly">
-                <img
-                  src={course.cover_url}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
+                <img src={course.cover_url} alt="" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
               </div>
             )}
@@ -125,7 +135,10 @@ function CoursePage() {
             </h1>
             <div className="flex items-center gap-3 mt-3">
               {isGated && !isEnrolled && (
-                <Badge variant="secondary" className="text-xs border-amber-400 text-amber-700 bg-amber-50 dark:bg-amber-950/30 dark:text-amber-400">
+                <Badge
+                  variant="secondary"
+                  className="text-xs border-amber-400 text-amber-700 bg-amber-50 dark:bg-amber-950/30 dark:text-amber-400"
+                >
                   <Lock className="h-3 w-3 mr-1" /> Enrollment required
                 </Badge>
               )}
@@ -141,7 +154,9 @@ function CoursePage() {
               )}
             </div>
             {course.description && (
-              <p className="mt-4 text-lg text-muted-foreground leading-relaxed max-w-2xl">{course.description}</p>
+              <p className="mt-4 text-lg text-muted-foreground leading-relaxed max-w-2xl">
+                {course.description}
+              </p>
             )}
           </AnimateIn>
         ) : null}
@@ -155,12 +170,16 @@ function CoursePage() {
                 </div>
                 <div>
                   <h3 className="font-serif text-lg text-primary">Enroll in this course</h3>
-                  <p className="text-sm text-muted-foreground">Enter the roll number issued during registration</p>
+                  <p className="text-sm text-muted-foreground">
+                    Enter the roll number issued during registration
+                  </p>
                 </div>
               </div>
               <div className="flex gap-3">
                 <div className="flex-1">
-                  <Label htmlFor="roll-number" className="sr-only">Roll number</Label>
+                  <Label htmlFor="roll-number" className="sr-only">
+                    Roll number
+                  </Label>
                   <Input
                     id="roll-number"
                     placeholder="e.g. 3030001"
@@ -171,7 +190,11 @@ function CoursePage() {
                   />
                 </div>
                 <Button onClick={handleEnroll} disabled={enrolling || !rollInput.trim()}>
-                  {enrolling ? <Spinner className="h-4 w-4 mr-1.5" /> : <GraduationCap className="h-4 w-4 mr-1.5" />}
+                  {enrolling ? (
+                    <Spinner className="h-4 w-4 mr-1.5" />
+                  ) : (
+                    <GraduationCap className="h-4 w-4 mr-1.5" />
+                  )}
                   {enrolling ? "Enrolling..." : "Enroll"}
                 </Button>
               </div>
@@ -185,9 +208,12 @@ function CoursePage() {
               <Lock className="h-8 w-8 mx-auto text-primary/60 mb-3" />
               <h3 className="font-serif text-lg text-primary">Enrollment required</h3>
               <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
-                This course requires a student roll number. Sign in or register first, then enroll using your roll number.
+                This course requires a student roll number. Sign in or register first, then enroll
+                using your roll number.
               </p>
-              <Button asChild className="mt-4 shadow-scholarly"><Link to="/auth">Sign in or register</Link></Button>
+              <Button asChild className="mt-4 shadow-scholarly">
+                <Link to="/auth">Sign in or register</Link>
+              </Button>
             </Card>
           </AnimateIn>
         )}
@@ -215,7 +241,11 @@ function CoursePage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="font-serif text-lg leading-snug">{l.title}</div>
-                          {l.description && <div className="text-sm text-muted-foreground line-clamp-1 mt-0.5">{l.description}</div>}
+                          {l.description && (
+                            <div className="text-sm text-muted-foreground line-clamp-1 mt-0.5">
+                              {l.description}
+                            </div>
+                          )}
                         </div>
                         <Button asChild size="sm" variant="secondary" className="shrink-0">
                           <Link to="/lectures/$id" params={{ id: l.id }}>
@@ -235,8 +265,12 @@ function CoursePage() {
           <AnimateIn animation="fade-in" delay={200}>
             <Card className="mt-10 p-8 bg-gradient-to-br from-primary/5 to-gold/5 border-primary/20 text-center">
               <div className="gold-divider mb-4" />
-              <p className="font-serif text-lg text-primary">Create a free account to watch the lectures and download the notes.</p>
-              <Button asChild className="mt-4 shadow-scholarly"><Link to="/auth">Sign in or register</Link></Button>
+              <p className="font-serif text-lg text-primary">
+                Create a free account to watch the lectures and download the notes.
+              </p>
+              <Button asChild className="mt-4 shadow-scholarly">
+                <Link to="/auth">Sign in or register</Link>
+              </Button>
             </Card>
           </AnimateIn>
         )}
