@@ -20,10 +20,12 @@ export const registerForCourse = createServerFn({ method: "POST" })
       promiseToParticipate: boolean;
     }) => input,
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data: input }) => {
+    if (!input) throw new Error("Invalid registration request");
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: existing } = await supabaseAdmin.auth.admin.getUserByEmail(data.email);
+    const { data: existing } = await supabaseAdmin.auth.admin.getUserByEmail(input.email);
     const existingUser = existing?.user;
 
     let userId: string;
@@ -34,12 +36,12 @@ export const registerForCourse = createServerFn({ method: "POST" })
       const existingMeta = existingUser.user_metadata ?? {};
       rollNumber = (existingMeta.roll_number as string) ?? "";
     } else {
-      const pw = data.password || crypto.randomUUID();
+      const pw = input.password || crypto.randomUUID();
       const { data: userData, error: createError } = await supabaseAdmin.auth.admin.createUser({
-        email: data.email,
+        email: input.email,
         password: pw,
         email_confirm: true,
-        user_metadata: { full_name: data.fullNameEn },
+        user_metadata: { full_name: input.fullNameEn },
       });
 
       if (createError) throw new Error(createError.message);
@@ -71,23 +73,23 @@ export const registerForCourse = createServerFn({ method: "POST" })
     const { error: metaError } = await supabaseAdmin.auth.admin.updateUserById(userId, {
       user_metadata: {
         ...currentMeta,
-        full_name: data.fullNameEn,
+        full_name: input.fullNameEn,
         roll_number: rollNumber,
         enrolled_courses: enrolled,
-        reg_name_ur: data.fullNameUr,
-        reg_age: data.age,
-        reg_phone: data.phoneNumber,
-        reg_education: data.education,
-        reg_islamic_education: data.islamicEducation,
-        reg_scholars: data.scholarsListenedTo,
-        reg_how_heard: data.howHeard,
-        reg_completed_level_1: data.completedLevel1,
-        reg_promise: data.promiseToParticipate,
+        reg_name_ur: input.fullNameUr,
+        reg_age: input.age,
+        reg_phone: input.phoneNumber,
+        reg_education: input.education,
+        reg_islamic_education: input.islamicEducation,
+        reg_scholars: input.scholarsListenedTo,
+        reg_how_heard: input.howHeard,
+        reg_completed_level_1: input.completedLevel1,
+        reg_promise: input.promiseToParticipate,
         reg_course: COURSE_SLUG,
       },
     });
 
     if (metaError) throw new Error("Failed to update user metadata");
 
-    return { rollNumber, email: data.email };
+    return { rollNumber, email: input.email };
   });

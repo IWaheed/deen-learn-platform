@@ -4,12 +4,14 @@ const ALLOWED_COURSE = "uloom-ul-quran";
 
 export const loginWithRollNumber = createServerFn({ method: "POST" })
   .validator((input: { rollNumber: string; email: string }) => input)
-  .handler(async ({ data: { rollNumber, email } }) => {
+  .handler(async ({ data }) => {
+    if (!data) throw new Error("Invalid login request");
+    const { rollNumber, email } = data;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data } = await supabaseAdmin.auth.admin.listUsers();
+    const { data: users } = await supabaseAdmin.auth.admin.listUsers();
 
-    const match = data?.users.find((u) => {
+    const match = users?.users.find((u) => {
       const meta = u.user_metadata ?? {};
       return meta.roll_number === rollNumber && u.email?.toLowerCase() === email.toLowerCase();
     });

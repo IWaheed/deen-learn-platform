@@ -4,7 +4,9 @@ export const signUpUser = createServerFn({ method: "POST" })
   .validator(
     (input: { email: string; password: string; fullName: string; rollNumber: string }) => input,
   )
-  .handler(async ({ data: { email, password, fullName, rollNumber } }) => {
+  .handler(async ({ data }) => {
+    if (!data) throw new Error("Invalid signup request");
+    const { email, password, fullName, rollNumber } = data;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: existing } = await supabaseAdmin.auth.admin.getUserByEmail(email);

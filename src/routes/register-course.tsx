@@ -99,8 +99,7 @@ function RegisterCoursePage() {
             <AlertDialogDescription asChild>
               <div className="space-y-3">
                 <p>
-                  Your account has been created. We sent your Student ID to <strong>{email}</strong>
-                  .
+                  Your account has been created. Your Student ID is shown below.
                 </p>
                 <div className="rounded-lg border bg-muted/50 p-4 text-center">
                   <p className="text-xs text-muted-foreground uppercase tracking-wide">

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as RegisterCourseRouteImport } from './routes/register-course'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -21,6 +22,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedLecturesIdRouteImport } from './routes/_authenticated/lectures.$id'
 import { Route as AuthenticatedAdminStudentsRouteImport } from './routes/_authenticated/admin.students'
+import { Route as AuthenticatedAdminRegistrationsRouteImport } from './routes/_authenticated/admin.registrations'
 import { Route as AuthenticatedAdminQuestionsRouteImport } from './routes/_authenticated/admin.questions'
 import { Route as AuthenticatedAdminCoursesIdRouteImport } from './routes/_authenticated/admin.courses.$id'
 
@@ -32,6 +34,11 @@ const TermsRoute = TermsRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterCourseRoute = RegisterCourseRouteImport.update({
+  id: '/register-course',
+  path: '/register-course',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -84,6 +91,12 @@ const AuthenticatedAdminStudentsRoute =
     path: '/students',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminRegistrationsRoute =
+  AuthenticatedAdminRegistrationsRouteImport.update({
+    id: '/registrations',
+    path: '/registrations',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminQuestionsRoute =
   AuthenticatedAdminQuestionsRouteImport.update({
     id: '/questions',
@@ -101,12 +114,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/privacy': typeof PrivacyRoute
+  '/register-course': typeof RegisterCourseRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/questions': typeof AuthenticatedQuestionsRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/admin/questions': typeof AuthenticatedAdminQuestionsRoute
+  '/admin/registrations': typeof AuthenticatedAdminRegistrationsRoute
   '/admin/students': typeof AuthenticatedAdminStudentsRoute
   '/lectures/$id': typeof AuthenticatedLecturesIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -116,11 +131,13 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/privacy': typeof PrivacyRoute
+  '/register-course': typeof RegisterCourseRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/questions': typeof AuthenticatedQuestionsRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/admin/questions': typeof AuthenticatedAdminQuestionsRoute
+  '/admin/registrations': typeof AuthenticatedAdminRegistrationsRoute
   '/admin/students': typeof AuthenticatedAdminStudentsRoute
   '/lectures/$id': typeof AuthenticatedLecturesIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -132,12 +149,14 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/privacy': typeof PrivacyRoute
+  '/register-course': typeof RegisterCourseRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/questions': typeof AuthenticatedQuestionsRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/_authenticated/admin/questions': typeof AuthenticatedAdminQuestionsRoute
+  '/_authenticated/admin/registrations': typeof AuthenticatedAdminRegistrationsRoute
   '/_authenticated/admin/students': typeof AuthenticatedAdminStudentsRoute
   '/_authenticated/lectures/$id': typeof AuthenticatedLecturesIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -149,12 +168,14 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/privacy'
+    | '/register-course'
     | '/sitemap.xml'
     | '/terms'
     | '/admin'
     | '/questions'
     | '/courses/$slug'
     | '/admin/questions'
+    | '/admin/registrations'
     | '/admin/students'
     | '/lectures/$id'
     | '/admin/'
@@ -164,11 +185,13 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/privacy'
+    | '/register-course'
     | '/sitemap.xml'
     | '/terms'
     | '/questions'
     | '/courses/$slug'
     | '/admin/questions'
+    | '/admin/registrations'
     | '/admin/students'
     | '/lectures/$id'
     | '/admin'
@@ -179,12 +202,14 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/privacy'
+    | '/register-course'
     | '/sitemap.xml'
     | '/terms'
     | '/_authenticated/admin'
     | '/_authenticated/questions'
     | '/courses/$slug'
     | '/_authenticated/admin/questions'
+    | '/_authenticated/admin/registrations'
     | '/_authenticated/admin/students'
     | '/_authenticated/lectures/$id'
     | '/_authenticated/admin/'
@@ -196,6 +221,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   PrivacyRoute: typeof PrivacyRoute
+  RegisterCourseRoute: typeof RegisterCourseRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   CoursesSlugRoute: typeof CoursesSlugRoute
@@ -215,6 +241,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register-course': {
+      id: '/register-course'
+      path: '/register-course'
+      fullPath: '/register-course'
+      preLoaderRoute: typeof RegisterCourseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -287,6 +320,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminStudentsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/registrations': {
+      id: '/_authenticated/admin/registrations'
+      path: '/registrations'
+      fullPath: '/admin/registrations'
+      preLoaderRoute: typeof AuthenticatedAdminRegistrationsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/questions': {
       id: '/_authenticated/admin/questions'
       path: '/questions'
@@ -306,6 +346,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminQuestionsRoute: typeof AuthenticatedAdminQuestionsRoute
+  AuthenticatedAdminRegistrationsRoute: typeof AuthenticatedAdminRegistrationsRoute
   AuthenticatedAdminStudentsRoute: typeof AuthenticatedAdminStudentsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminCoursesIdRoute: typeof AuthenticatedAdminCoursesIdRoute
@@ -313,6 +354,7 @@ interface AuthenticatedAdminRouteChildren {
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminQuestionsRoute: AuthenticatedAdminQuestionsRoute,
+  AuthenticatedAdminRegistrationsRoute: AuthenticatedAdminRegistrationsRoute,
   AuthenticatedAdminStudentsRoute: AuthenticatedAdminStudentsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminCoursesIdRoute: AuthenticatedAdminCoursesIdRoute,
@@ -341,6 +383,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   PrivacyRoute: PrivacyRoute,
+  RegisterCourseRoute: RegisterCourseRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   CoursesSlugRoute: CoursesSlugRoute,
