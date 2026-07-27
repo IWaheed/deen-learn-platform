@@ -53,25 +53,25 @@ function extractRegistrations(
         islamicEducation: (m.reg_islamic_education as string) ?? "",
         scholarsListenedTo: (m.reg_scholars as string) ?? "",
         howHeard: (m.reg_how_heard as string) ?? "",
-        completedLevel1: (m.reg_completed_level_1 as string) ?? "",
-        promiseToParticipate: (m.reg_promise as string) ?? "",
+        completedLevel1: m.reg_completed_level_1 === true ? "Yes" : m.reg_completed_level_1 === false ? "No" : "",
+        promiseToParticipate: m.reg_promise === true ? "Yes" : m.reg_promise === false ? "No" : "",
         createdAt: u.created_at,
       };
     })
     .sort((a, b) => a.rollNumber.localeCompare(b.rollNumber));
 }
 
-const listRegistrations = createServerFn({ method: "GET" }).handler(async () => {
+const listRegistrations = createServerFn({ method: "POST" }).handler(async () => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-  const { data } = await supabaseAdmin.auth.admin.listUsers();
+  const { data } = await supabaseAdmin.auth.admin.listUsers({ perPage: 10000 });
   return extractRegistrations(data?.users ?? []);
 });
 
-const downloadCsv = createServerFn({ method: "GET" }).handler(async () => {
+export const downloadCsv = createServerFn({ method: "POST" }).handler(async () => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-  const { data } = await supabaseAdmin.auth.admin.listUsers();
+  const { data } = await supabaseAdmin.auth.admin.listUsers({ perPage: 10000 });
   const rows = extractRegistrations(data?.users ?? []);
 
   const headers = [
@@ -101,8 +101,8 @@ const downloadCsv = createServerFn({ method: "GET" }).handler(async () => {
       r.islamicEducation,
       r.scholarsListenedTo,
       r.howHeard,
-      r.completedLevel1 === "true" ? "Yes" : r.completedLevel1 || "",
-      r.promiseToParticipate === "true" ? "Yes" : r.promiseToParticipate || "",
+      r.completedLevel1,
+      r.promiseToParticipate,
     ]
       .map((v) => `"${v.replace(/"/g, '""')}"`)
       .join(","),
