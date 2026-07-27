@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import crypto from "crypto";
 
-const COURSE_SLUG = "uloome-ul-quran";
+const COURSE_SLUG = "uloom-ul-quran";
 
 export const registerForCourse = createServerFn({ method: "POST" })
   .validator(

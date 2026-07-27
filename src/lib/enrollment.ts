@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 
-const GATED_SLUGS = ["quranic-sciences-zamzami", "uloome-ul-quran"];
+const GATED_SLUGS = ["quranic-sciences-zamzami", "uloom-ul-quran"];
 
 export const enrollInCourse = createServerFn({ method: "POST" })
   .validator((input: { courseSlug: string; rollNumber: string; userId: string }) => input)

@@ -18,7 +18,7 @@ import { LectureListSkeleton } from "@/components/skeleton";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Spinner } from "@/components/spinner";
 
-const GATED_SLUGS = ["quranic-sciences-zamzami", "uloome-ul-quran"];
+const GATED_SLUGS = ["quranic-sciences-zamzami", "uloom-ul-quran"];
 
 export const Route = createFileRoute("/courses/$slug")({
   component: CoursePage,

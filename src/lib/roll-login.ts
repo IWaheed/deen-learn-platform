@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 
-const ALLOWED_COURSE = "uloome-ul-quran";
+const ALLOWED_COURSE = "uloom-ul-quran";
 
 export const loginWithRollNumber = createServerFn({ method: "POST" })
   .validator((input: { rollNumber: string; email: string }) => input)

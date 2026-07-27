@@ -24,7 +24,7 @@ interface Registration {
   createdAt: string;
 }
 
-const COURSE_SLUG = "uloome-ul-quran";
+const COURSE_SLUG = "uloom-ul-quran";
 
 function extractRegistrations(
   users: {
