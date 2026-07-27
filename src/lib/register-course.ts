@@ -83,12 +83,5 @@ export const registerForCourse = createServerFn({ method: "POST" })
 
     if (metaError) throw new Error("Failed to update user metadata");
 
-    const { sendRollNumberEmail } = await import("@/lib/email");
-    sendRollNumberEmail({
-      email: data.email,
-      fullName: data.fullNameEn,
-      rollNumber: nextRoll,
-    });
-
     return { rollNumber: nextRoll, email: data.email };
   });

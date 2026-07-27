@@ -6,7 +6,6 @@ import { BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { getNextRollNumber } from "@/lib/roll-number";
-import { sendRollNumberEmail } from "@/lib/email";
 import { loginWithRollNumber } from "@/lib/roll-login";
 import { signUpUser } from "@/lib/signup";
 import { Button } from "@/components/ui/button";
@@ -141,7 +140,6 @@ function AuthPage() {
     setLoading(false);
     setRollNumber(roll);
     setShowVerifyDialog(true);
-    sendRollNumberEmail({ email, fullName, rollNumber: roll }).catch(() => {});
   }
 
   async function signInGoogle() {
