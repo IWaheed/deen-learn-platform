@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { BookMarked, Inbox, Users } from "lucide-react";
+import { BookMarked, Inbox, Users, ScrollText } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { useAuth } from "@/lib/use-auth";
 
@@ -32,24 +32,40 @@ function AdminLayout() {
       <SiteHeader />
       <div className="border-b border-border/60 bg-parchment/40">
         <div className="mx-auto max-w-6xl px-6 flex gap-6 text-sm">
-          <Link to="/admin" activeOptions={{ exact: true }}
+          <Link
+            to="/admin"
+            activeOptions={{ exact: true }}
             activeProps={{ className: "border-primary text-primary" }}
-            className="py-3 border-b-2 border-transparent hover:text-primary flex items-center gap-1.5">
+            className="py-3 border-b-2 border-transparent hover:text-primary flex items-center gap-1.5"
+          >
             <BookMarked className="h-4 w-4" /> Courses
           </Link>
-          <Link to="/admin/questions"
+          <Link
+            to="/admin/questions"
             activeProps={{ className: "border-primary text-primary" }}
-            className="py-3 border-b-2 border-transparent hover:text-primary flex items-center gap-1.5">
+            className="py-3 border-b-2 border-transparent hover:text-primary flex items-center gap-1.5"
+          >
             <Inbox className="h-4 w-4" /> Questions
           </Link>
-          <Link to="/admin/students"
+          <Link
+            to="/admin/students"
             activeProps={{ className: "border-primary text-primary" }}
-            className="py-3 border-b-2 border-transparent hover:text-primary flex items-center gap-1.5">
+            className="py-3 border-b-2 border-transparent hover:text-primary flex items-center gap-1.5"
+          >
             <Users className="h-4 w-4" /> Students
+          </Link>
+          <Link
+            to="/admin/registrations"
+            activeProps={{ className: "border-primary text-primary" }}
+            className="py-3 border-b-2 border-transparent hover:text-primary flex items-center gap-1.5"
+          >
+            <ScrollText className="h-4 w-4" /> Registrations
           </Link>
         </div>
       </div>
-      <main className="flex-1"><Outlet /></main>
+      <main className="flex-1">
+        <Outlet />
+      </main>
     </div>
   );
 }

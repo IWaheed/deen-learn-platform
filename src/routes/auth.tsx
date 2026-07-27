@@ -6,13 +6,24 @@ import { BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { getNextRollNumber } from "@/lib/roll-number";
+import { sendRollNumberEmail } from "@/lib/email";
+import { loginWithRollNumber } from "@/lib/roll-login";
+import { signUpUser } from "@/lib/signup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Spinner } from "@/components/spinner";
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 const searchSchema = z.object({ redirect: z.string().optional() });
 
@@ -20,7 +31,10 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Sign in — Deen Learn Platform" },
-      { name: "description", content: "Sign in or create an account to access Islamic studies courses." },
+      {
+        name: "description",
+        content: "Sign in or create an account to access Islamic studies courses.",
+      },
     ],
   }),
   validateSearch: searchSchema,
@@ -40,9 +54,12 @@ function AuthPage() {
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const [view, setView] = useState<"signin" | "signup" | "forgot" | "reset">("signin");
+  const [signinTab, setSigninTab] = useState<"email" | "rollnumber">("email");
   const [newPassword, setNewPassword] = useState("");
   const [showVerifyDialog, setShowVerifyDialog] = useState(false);
   const [rollNumber, setRollNumber] = useState("");
+  const [rollLoginRoll, setRollLoginRoll] = useState("");
+  const [rollLoginEmail, setRollLoginEmail] = useState("");
 
   function passwordScore(pw: string): { label: string; color: string; pct: number } {
     let score = 0;
@@ -80,6 +97,33 @@ function AuthPage() {
     await afterAuth();
   }
 
+  async function signInWithRollNumber() {
+    if (!rollLoginRoll.trim()) return toast.error("Enter your roll number");
+    if (!rollLoginEmail.trim()) return toast.error("Enter your email");
+    setLoading(true);
+
+    const result = await loginWithRollNumber({
+      rollNumber: rollLoginRoll.trim(),
+      email: rollLoginEmail.trim(),
+    });
+
+    setLoading(false);
+
+    if (!result.valid) {
+      return toast.error("Roll number and email do not match our records");
+    }
+
+    const { error } = await supabase.auth.setSession({
+      access_token: result.accessToken,
+      refresh_token: result.refreshToken,
+    });
+
+    if (error) return toast.error(error.message);
+
+    toast.success("As-salāmu ʿalaykum. Welcome back.");
+    await afterAuth();
+  }
+
   async function signUp() {
     setLoading(true);
     let roll: string | undefined;
@@ -88,18 +132,16 @@ function AuthPage() {
     } catch {
       return toast.error("Failed to generate roll number. Please try again.");
     }
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: window.location.origin,
-        data: { full_name: fullName, roll_number: roll },
-      },
-    });
+    try {
+      await signUpUser({ email, password, fullName, rollNumber: roll });
+    } catch (err) {
+      setLoading(false);
+      return toast.error(err instanceof Error ? err.message : "Registration failed");
+    }
     setLoading(false);
-    if (error) return toast.error(error.message);
     setRollNumber(roll);
     setShowVerifyDialog(true);
+    sendRollNumberEmail({ email, fullName, rollNumber: roll }).catch(() => {});
   }
 
   async function signInGoogle() {
@@ -141,9 +183,13 @@ function AuthPage() {
             <AlertDialogTitle>Registration successful</AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-3">
-                <p>We sent a verification link to <strong>{email}</strong>. Please verify your email, then sign in.</p>
+                <p>
+                  Your account has been created. You can now sign in with your email and password.
+                </p>
                 <div className="rounded-lg border bg-muted/50 p-4 text-center">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Your roll number</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                    Your roll number
+                  </p>
                   <p className="mt-1 font-mono text-2xl font-bold text-primary">{rollNumber}</p>
                 </div>
                 <p className="text-xs text-muted-foreground">Keep this number for your records.</p>
@@ -160,9 +206,13 @@ function AuthPage() {
           <div className="h-12 w-12 rounded-full bg-primary text-primary-foreground grid place-items-center shadow-scholarly mb-4">
             <BookOpen className="h-5 w-5" />
           </div>
-          <div className="text-xs uppercase tracking-[0.25em] text-gold ornament">Deen Learn Platform</div>
+          <div className="text-xs uppercase tracking-[0.25em] text-gold ornament">
+            Deen Learn Platform
+          </div>
           <h1 className="mt-2 font-serif text-3xl text-primary">Enter the halaqah</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Sign in to access the lectures and notes.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Sign in to access the lectures and notes.
+          </p>
         </div>
 
         {view === "reset" ? (
@@ -170,7 +220,12 @@ function AuthPage() {
             <p className="text-sm text-muted-foreground">Enter your new password below.</p>
             <div>
               <Label>New password</Label>
-              <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} minLength={6} />
+              <Input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                minLength={6}
+              />
             </div>
             <Button className="w-full" onClick={updatePassword} disabled={loading}>
               {loading ? <Spinner className="h-4 w-4" /> : null}
@@ -179,7 +234,9 @@ function AuthPage() {
           </div>
         ) : view === "forgot" ? (
           <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">Enter your email and we'll send you a reset link.</p>
+            <p className="text-sm text-muted-foreground">
+              Enter your email and we'll send you a reset link.
+            </p>
             <div>
               <Label>Email</Label>
               <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -188,7 +245,10 @@ function AuthPage() {
               {loading ? <Spinner className="h-4 w-4" /> : null}
               {loading ? "Sending..." : "Send reset link"}
             </Button>
-            <button className="text-xs text-muted-foreground hover:underline mx-auto block" onClick={() => setView("signin")}>
+            <button
+              className="text-xs text-muted-foreground hover:underline mx-auto block"
+              onClick={() => setView("signin")}
+            >
               Back to sign in
             </button>
           </div>
@@ -198,7 +258,9 @@ function AuthPage() {
               Continue with Google
             </Button>
             <div className="flex items-center gap-3 my-5 text-xs text-muted-foreground">
-              <div className="h-px flex-1 bg-border" />or<div className="h-px flex-1 bg-border" />
+              <div className="h-px flex-1 bg-border" />
+              or
+              <div className="h-px flex-1 bg-border" />
             </div>
 
             <Tabs value={view} onValueChange={(v) => setView(v as "signin" | "signup")}>
@@ -207,26 +269,113 @@ function AuthPage() {
                 <TabsTrigger value="signup">Register</TabsTrigger>
               </TabsList>
               <TabsContent value="signin" className="space-y-3 mt-4">
-                <div><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-                <div><Label>Password</Label><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} /></div>
-                <Button className="w-full" onClick={signIn} disabled={loading}>
-                  {loading ? <Spinner className="h-4 w-4" /> : null}
-                  Sign in
-                </Button>
-                <button className="text-xs text-muted-foreground hover:underline mx-auto block" onClick={() => setView("forgot")}>
-                  Forgot password?
-                </button>
+                <div className="flex gap-1 rounded-lg bg-muted p-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setSigninTab("email")}
+                    className={`flex-1 rounded-md py-1.5 text-xs font-medium transition-all ${
+                      signinTab === "email"
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    Email
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSigninTab("rollnumber")}
+                    className={`flex-1 rounded-md py-1.5 text-xs font-medium transition-all ${
+                      signinTab === "rollnumber"
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    Roll No.
+                  </button>
+                </div>
+
+                {signinTab === "email" ? (
+                  <>
+                    <div>
+                      <Label>Email</Label>
+                      <Input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label>Password</Label>
+                      <Input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
+                    </div>
+                    <Button className="w-full" onClick={signIn} disabled={loading}>
+                      {loading ? <Spinner className="h-4 w-4" /> : null}
+                      Sign in
+                    </Button>
+                    <button
+                      className="text-xs text-muted-foreground hover:underline mx-auto block"
+                      onClick={() => setView("forgot")}
+                    >
+                      Forgot password?
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div>
+                      <Label>Roll Number</Label>
+                      <Input
+                        value={rollLoginRoll}
+                        onChange={(e) => setRollLoginRoll(e.target.value)}
+                        placeholder="e.g. 3030001"
+                      />
+                    </div>
+                    <div>
+                      <Label>Email</Label>
+                      <Input
+                        type="email"
+                        value={rollLoginEmail}
+                        onChange={(e) => setRollLoginEmail(e.target.value)}
+                        placeholder="you@example.com"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground -mb-2">
+                      For students registered in Uloom ul-Quran.
+                    </p>
+                    <Button className="w-full" onClick={signInWithRollNumber} disabled={loading}>
+                      {loading ? <Spinner className="h-4 w-4" /> : null}
+                      Sign in
+                    </Button>
+                  </>
+                )}
               </TabsContent>
               <TabsContent value="signup" className="space-y-3 mt-4">
-                <div><Label>Full name</Label><Input value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
-                <div><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+                <div>
+                  <Label>Full name</Label>
+                  <Input value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                </div>
+                <div>
+                  <Label>Email</Label>
+                  <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                </div>
                 <div>
                   <Label>Password</Label>
-                  <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} />
+                  <Input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    minLength={6}
+                  />
                   {password && (
                     <div className="mt-2">
                       <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                        <div className={`h-full ${strength.color} transition-all duration-300 rounded-full`} style={{ width: `${strength.pct}%` }} />
+                        <div
+                          className={`h-full ${strength.color} transition-all duration-300 rounded-full`}
+                          style={{ width: `${strength.pct}%` }}
+                        />
                       </div>
                       <p className="text-xs text-muted-foreground mt-1">{strength.label}</p>
                     </div>

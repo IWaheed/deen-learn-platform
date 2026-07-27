@@ -17,7 +17,11 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Deen Learn Platform — Islamic Studies Courses" },
-      { name: "description", content: "Study classical Islamic sciences with recorded lectures, notes, and one-to-one Q&A with your teacher." },
+      {
+        name: "description",
+        content:
+          "Study classical Islamic sciences with recorded lectures, notes, and one-to-one Q&A with your teacher.",
+      },
     ],
   }),
 });
@@ -51,10 +55,32 @@ function Index() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="flex-1">
+        {/* Announcement banner */}
+        <section className="bg-primary/5 border-b border-primary/10">
+          <div className="mx-auto max-w-6xl px-6 py-3.5 flex items-center justify-between gap-4 flex-wrap">
+            <p className="text-sm text-primary font-medium">
+              <span className="text-gold font-semibold">New course:</span> Sciences of Quran (Uloom
+              ul-Quran) is beginning soon. Register now!
+            </p>
+            <Link
+              to="/register-course"
+              className="shrink-0 text-xs font-semibold uppercase tracking-wider text-gold hover:text-gold/80 transition-colors border border-gold/30 rounded-full px-4 py-1.5"
+            >
+              Register
+            </Link>
+          </div>
+        </section>
+
         {/* Hero */}
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 -z-10">
-            <img src={heroImg} alt="" className="w-full h-full object-cover object-center opacity-35" width={1600} height={900} />
+            <img
+              src={heroImg}
+              alt=""
+              className="w-full h-full object-cover object-center opacity-35"
+              width={1600}
+              height={900}
+            />
             <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/85 to-background" />
             <div className="geometric-pattern absolute inset-0 -z-10" />
           </div>
@@ -65,14 +91,22 @@ function Index() {
                   Traditional knowledge, digitally delivered
                 </div>
                 <h1 className="mt-6 font-serif text-5xl md:text-7xl leading-[1.05] text-primary">
-                  Sit at the feet of<br />the scholars.
+                  Sit at the feet of
+                  <br />
+                  the scholars.
                 </h1>
                 <p className="mt-6 text-lg text-muted-foreground max-w-xl leading-relaxed">
-                  Recorded lectures, downloadable notes, and direct correspondence with
-                  your teacher — a complete madrasah, wherever you are.
+                  Recorded lectures, downloadable notes, and direct correspondence with your teacher
+                  — a complete madrasah, wherever you are.
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <Button size="lg" className="shadow-scholarly" onClick={() => document.getElementById("courses")?.scrollIntoView({ behavior: "smooth" })}>
+                  <Button
+                    size="lg"
+                    className="shadow-scholarly"
+                    onClick={() =>
+                      document.getElementById("courses")?.scrollIntoView({ behavior: "smooth" })
+                    }
+                  >
                     Browse courses
                   </Button>
                   {user ? (
@@ -97,9 +131,21 @@ function Index() {
         {/* Features */}
         <section className="mx-auto max-w-6xl px-6 py-16 grid md:grid-cols-3 gap-6">
           {[
-            { icon: PlayCircle, title: "Recorded lectures", body: "Every session is preserved — revisit and review at your own pace." },
-            { icon: BookOpen, title: "Course notes", body: "Downloadable PDFs and companion documents for every lecture." },
-            { icon: MessageCircle, title: "Ask the teacher", body: "Send private questions and receive a reply directly from the shaykh." },
+            {
+              icon: PlayCircle,
+              title: "Recorded lectures",
+              body: "Every session is preserved — revisit and review at your own pace.",
+            },
+            {
+              icon: BookOpen,
+              title: "Course notes",
+              body: "Downloadable PDFs and companion documents for every lecture.",
+            },
+            {
+              icon: MessageCircle,
+              title: "Ask the teacher",
+              body: "Send private questions and receive a reply directly from the shaykh.",
+            },
           ].map(({ icon: Icon, title, body }, i) => (
             <AnimateIn key={title} animation="fade-in" delay={i * 150}>
               <Card className="p-6 bg-card/60 border-border/60 shadow-scholarly h-full transition-all hover:shadow-lg hover:-translate-y-0.5">
@@ -117,7 +163,9 @@ function Index() {
         <section id="courses" className="mx-auto max-w-6xl px-6 py-16">
           <AnimateIn animation="fade-in">
             <div className="text-center mb-12">
-              <div className="text-xs uppercase tracking-[0.25em] text-gold ornament">The Curriculum</div>
+              <div className="text-xs uppercase tracking-[0.25em] text-gold ornament">
+                The Curriculum
+              </div>
               <h2 className="mt-3 font-serif text-4xl md:text-5xl text-primary">Our Courses</h2>
               <div className="gold-divider mt-4" />
             </div>
@@ -147,7 +195,12 @@ function Index() {
                       <div className="aspect-video bg-gradient-to-br from-primary/10 to-gold/15 relative overflow-hidden">
                         {c.cover_url ? (
                           <>
-                            <img src={c.cover_url} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                            <img
+                              src={c.cover_url}
+                              alt=""
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              loading="lazy"
+                            />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                           </>
                         ) : (
@@ -156,16 +209,23 @@ function Index() {
                           </div>
                         )}
                         {c.lecture_count > 0 && (
-                          <Badge variant="secondary" className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm text-xs gap-1.5">
+                          <Badge
+                            variant="secondary"
+                            className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm text-xs gap-1.5"
+                          >
                             <ListOrdered className="h-3 w-3" />
                             {c.lecture_count} {c.lecture_count === 1 ? "lecture" : "lectures"}
                           </Badge>
                         )}
                       </div>
                       <div className="p-5">
-                        <h3 className="font-serif text-xl text-primary group-hover:text-primary/80 transition-colors">{c.title}</h3>
+                        <h3 className="font-serif text-xl text-primary group-hover:text-primary/80 transition-colors">
+                          {c.title}
+                        </h3>
                         {c.description && (
-                          <p className="mt-2 text-sm text-muted-foreground line-clamp-2 leading-relaxed">{c.description}</p>
+                          <p className="mt-2 text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                            {c.description}
+                          </p>
                         )}
                       </div>
                     </Card>

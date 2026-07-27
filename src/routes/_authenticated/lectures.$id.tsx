@@ -2,7 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, FileText, Download, Send } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, FileText, Download, Send, CheckCircle2, XCircle, RotateCcw } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useAuth } from "@/lib/use-auth";
 import { AnimateIn } from "@/components/animate-in";
 import { LecturePageSkeleton } from "@/components/skeleton";
@@ -217,6 +218,11 @@ function LecturePage() {
               </section>
             </AnimateIn>
 
+            {/* Quiz */}
+            <AnimateIn animation="fade-in" delay={225}>
+              <QuizSection lectureId={id} userId={user?.id} />
+            </AnimateIn>
+
             {/* Ask the teacher */}
             <AnimateIn animation="fade-in" delay={250}>
               <section className="mt-14">
@@ -245,3 +251,158 @@ function LecturePage() {
     </div>
   );
 }
+
+function QuizSection({ lectureId, userId }: { lectureId: string; userId?: string }) {
+  const qc = useQueryClient();
+
+  const { data: questions = [] } = useQuery({
+    queryKey: ["quiz-questions", lectureId],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("quiz_questions").select("*").eq("lecture_id", lectureId).order("position");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: attempts = [] } = useQuery({
+    queryKey: ["quiz-attempts", lectureId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("quiz_attempts").select("*").eq("lecture_id", lectureId).eq("user_id", userId!).order("completed_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [submitted, setSubmitted] = useState<any>(null);
+
+  function reset() {
+    setAnswers({});
+    setSubmitted(null);
+  }
+
+  const submitQuiz = useMutation({
+    mutationFn: async () => {
+      if (!userId) throw new Error("Sign in required");
+      if (Object.keys(answers).length !== questions.length) throw new Error("Answer all questions first");
+
+      let score = 0;
+      const questionResults = questions.map((q: any) => {
+        const selected = answers[q.id];
+        const correct = selected === q.correct_option_id;
+        if (correct) score++;
+        return { questionId: q.id, selectedOptionId: selected, isCorrect: correct };
+      });
+
+      const { data: attempt, error: attemptErr } = await supabase
+        .from("quiz_attempts")
+        .insert({ user_id: userId, lecture_id: lectureId, score, total: questions.length })
+        .select("id")
+        .single();
+      if (attemptErr) throw attemptErr;
+
+      const { error: answersErr } = await supabase.from("quiz_answers").insert(
+        questionResults.map((r: any) => ({
+          attempt_id: attempt.id,
+          question_id: r.questionId,
+          selected_option_id: r.selectedOptionId,
+          is_correct: r.isCorrect,
+        }))
+      );
+      if (answersErr) throw answersErr;
+
+      return { score, total: questions.length, results: questionResults };
+    },
+    onSuccess: (data) => {
+      toast.success(`You scored ${data.score}/${data.total}`);
+      setSubmitted(data);
+      qc.invalidateQueries({ queryKey: ["quiz-attempts", lectureId] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  if (questions.length === 0) return null;
+
+  const bestAttempt = attempts.length > 0 ? attempts.reduce((best: any, a: any) => a.score > best.score ? a : best, attempts[0]) : null;
+
+  return (
+    <section className="mt-14">
+      <div className="flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-gold font-medium mb-1">
+        <span>Quiz</span>
+        <span className="w-8 h-px bg-gold/50" />
+      </div>
+      <h2 className="mt-1 font-serif text-2xl text-primary">Test your knowledge</h2>
+      <p className="text-sm text-muted-foreground mt-1">Answer the following multiple-choice questions.</p>
+
+      {bestAttempt && !submitted && (
+        <p className="text-sm text-muted-foreground mt-2">
+          Best score: <span className="text-primary font-medium">{bestAttempt.score}/{bestAttempt.total}</span> ({attempts.length} attempt{attempts.length !== 1 ? "s" : ""})
+        </p>
+      )}
+
+      <Card className="mt-4 p-5 space-y-6 bg-card/70">
+        {questions.map((q: any, qi: number) => {
+          const options: { id: string; text: string }[] = q.options as any;
+          const isCorrect = submitted ? submitted.results.find((r: any) => r.questionId === q.id)?.isCorrect : null;
+
+          return (
+            <div key={q.id}>
+              <div className="flex items-start gap-2">
+                <span className="text-sm font-bold text-primary mt-0.5">{qi + 1}.</span>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{q.question_text}</p>
+                  <RadioGroup
+                    value={answers[q.id] ?? ""}
+                    onValueChange={(v) => setAnswers({ ...answers, [q.id]: v })}
+                    disabled={!!submitted}
+                    className="mt-2 space-y-1.5"
+                  >
+                    {options.map((o) => {
+                      const selected = answers[q.id] === o.id;
+                      const showCorrect = submitted && o.id === q.correct_option_id;
+                      const showWrong = submitted && selected && o.id !== q.correct_option_id;
+                      return (
+                        <div key={o.id} className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm ${showCorrect ? "bg-green-50 text-green-800" : showWrong ? "bg-red-50 text-red-800" : ""}`}>
+                          <RadioGroupItem value={o.id} id={`q${qi}-${o.id}`} disabled={!!submitted} />
+                          <Label htmlFor={`q${qi}-${o.id}`} className="flex-1 cursor-pointer text-sm">{o.text}</Label>
+                          {showCorrect && <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />}
+                          {showWrong && <XCircle className="h-4 w-4 text-red-600 shrink-0" />}
+                        </div>
+                      );
+                    })}
+                  </RadioGroup>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+
+        <div className="flex justify-between items-center pt-2 border-t border-border/40">
+          {submitted ? (
+            <>
+              <div className="text-sm">
+                Score: <span className="font-bold text-primary">{submitted.score}/{submitted.total}</span>
+                {submitted.score === submitted.total && " — Perfect!"}
+              </div>
+              <Button variant="outline" size="sm" onClick={reset}>
+                <RotateCcw className="h-4 w-4 mr-1.5" /> Retry
+              </Button>
+            </>
+          ) : (
+            <Button
+              onClick={() => submitQuiz.mutate()}
+              disabled={submitQuiz.isPending || Object.keys(answers).length !== questions.length}
+              className="shadow-scholarly"
+            >
+              {submitQuiz.isPending ? <Spinner className="h-4 w-4 mr-1.5" /> : <CheckCircle2 className="h-4 w-4 mr-1.5" />}
+              Submit answers
+            </Button>
+          )}
+        </div>
+      </Card>
+    </section>
+  );
+}
+
+export default LecturePage;
