@@ -256,18 +256,7 @@ export type Database = {
           },
         ]
       }
-        Insert: {
-          created_at?: string
-          full_name?: string | null
-          id: string
-        }
-        Update: {
-          created_at?: string
-          full_name?: string | null
-          id?: string
-        }
-        Relationships: []
-      }
+
       questions: {
         Row: {
           answer: string | null

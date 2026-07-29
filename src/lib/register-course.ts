@@ -25,13 +25,13 @@ export const registerForCourse = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
+    const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers({ perPage: 10000 });
     const existingUser = existingUsers?.users.find(
       (u) => u.email?.toLowerCase() === input.email.toLowerCase(),
     ) ?? null;
 
     let userId: string;
-    let rollNumber: string;
+    let rollNumber: string = "";
 
     if (existingUser) {
       userId = existingUser.id;
@@ -56,7 +56,7 @@ export const registerForCourse = createServerFn({ method: "POST" })
       const ROLL_MIN = 3030000;
       const ROLL_MAX = 3099999;
 
-      const { data: allUsers } = await supabaseAdmin.auth.admin.listUsers();
+      const { data: allUsers } = await supabaseAdmin.auth.admin.listUsers({ perPage: 10000 });
       const taken = new Set<number>();
       for (const u of allUsers?.users ?? []) {
         const rn = u.user_metadata?.roll_number as string | undefined;

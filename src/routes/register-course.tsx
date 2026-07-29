@@ -159,9 +159,9 @@ function RegisterCoursePage() {
               <Input
                 value={fullNameUr}
                 onChange={(e) => setFullNameUr(e.target.value)}
-                placeholder="URDU TEXT"
+                placeholder="نام اردو میں (مثال: محمد احمد)"
                 dir="rtl"
-                className="text-right"
+                className="text-right font-urdu"
               />
             </Field>
 
@@ -268,7 +268,7 @@ function RegisterCoursePage() {
             <Field label="Do you promise to participate in the course till the end?" required>
               <button
                 type="button"
-                onClick={() => setPromiseToParticipate(true)}
+                onClick={() => setPromiseToParticipate(!promiseToParticipate)}
                 className={`w-full rounded-lg border py-2.5 text-sm font-medium transition-all ${
                   promiseToParticipate
                     ? "border-primary bg-primary/10 text-primary"

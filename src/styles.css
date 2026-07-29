@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400..700&display=swap');
 @import "@fontsource/cormorant-garamond/400.css";
 @import "@fontsource/cormorant-garamond/500.css";
 @import "@fontsource/cormorant-garamond/600.css";
@@ -19,6 +20,8 @@
 @theme inline {
   --font-serif: "Cormorant Garamond", ui-serif, Georgia, serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-urdu: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", "Urdu Typesetting", "Noto Sans Arabic", "Amiri", serif;
+  --font-arabic: "Amiri", "Noto Sans Arabic", "Noto Nastaliq Urdu", serif;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -154,7 +157,8 @@
 }
 
 @utility font-serif { font-family: var(--font-serif); }
-@utility font-arabic { font-family: "Amiri", "Noto Sans Arabic", serif; }
+@utility font-urdu { font-family: var(--font-urdu); }
+@utility font-arabic { font-family: var(--font-arabic); }
 @utility ornament {
   position: relative;
 }

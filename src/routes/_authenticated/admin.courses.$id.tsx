@@ -213,7 +213,7 @@ function LectureRow({ lecture, onEdit, onDelete }: { lecture: any; onEdit: () =>
         question_text: qForm.question_text.trim(),
         options: options as any,
         correct_option_id: qForm.correct_option_id,
-        position: questions.length,
+        position: qEditing ? qEditing.position : questions.length,
       };
       if (qEditing) {
         const { error } = await supabase.from("quiz_questions").update(payload).eq("id", qEditing.id);

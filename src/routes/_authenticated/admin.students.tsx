@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/skeleton";
 const listStudents = createServerFn({ method: 'GET' })
   .handler(async () => {
     const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-    const { data } = await supabaseAdmin.auth.admin.listUsers()
+    const { data } = await supabaseAdmin.auth.admin.listUsers({ perPage: 10000 })
     return (data?.users ?? [])
       .filter(u => u.email)
       .map(u => ({

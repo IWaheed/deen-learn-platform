@@ -9,7 +9,7 @@ export const signUpUser = createServerFn({ method: "POST" })
     const { email, password, fullName, rollNumber } = data;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
+    const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers({ perPage: 10000 });
     const existing = existingUsers?.users.find(
       (u) => u.email?.toLowerCase() === email.toLowerCase(),
     );

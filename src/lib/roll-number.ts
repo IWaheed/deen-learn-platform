@@ -7,7 +7,7 @@ export const getNextRollNumber = createServerFn({ method: 'GET' })
   .handler(async () => {
     const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
 
-    const { data: users } = await supabaseAdmin.auth.admin.listUsers()
+    const { data: users } = await supabaseAdmin.auth.admin.listUsers({ perPage: 10000 })
 
     const taken = new Set<number>()
     for (const u of users?.users ?? []) {

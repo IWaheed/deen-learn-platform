@@ -68,7 +68,7 @@ function AdminQuestions() {
               <Textarea
                 rows={3}
                 placeholder="Write your reply…"
-                defaultValue={q.answer ?? ""}
+                value={drafts[q.id] ?? q.answer ?? ""}
                 onChange={(e) => setDrafts({ ...drafts, [q.id]: e.target.value })}
               />
               <div className="flex justify-end mt-2">

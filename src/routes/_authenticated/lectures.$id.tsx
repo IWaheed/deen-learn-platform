@@ -389,6 +389,13 @@ function QuizSection({ lectureId, userId }: { lectureId: string; userId?: string
                 <RotateCcw className="h-4 w-4 mr-1.5" /> Retry
               </Button>
             </>
+          ) : !userId ? (
+            <div className="flex items-center justify-between w-full">
+              <span className="text-xs text-muted-foreground">Sign in to record your quiz score</span>
+              <Button asChild size="sm" variant="outline">
+                <Link to="/auth">Sign in</Link>
+              </Button>
+            </div>
           ) : (
             <Button
               onClick={() => submitQuiz.mutate()}

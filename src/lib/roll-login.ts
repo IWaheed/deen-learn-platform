@@ -9,7 +9,7 @@ export const loginWithRollNumber = createServerFn({ method: "POST" })
     const { rollNumber, email } = data;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: users } = await supabaseAdmin.auth.admin.listUsers();
+    const { data: users } = await supabaseAdmin.auth.admin.listUsers({ perPage: 10000 });
 
     const match = users?.users.find((u) => {
       const meta = u.user_metadata ?? {};
