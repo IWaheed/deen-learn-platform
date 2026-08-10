@@ -227,6 +227,7 @@ export type Database = {
           options: Json
           position: number
           question_text: string
+          question_text_urdu: string | null
         }
         Insert: {
           correct_option_id: string
@@ -236,6 +237,7 @@ export type Database = {
           options: Json
           position?: number
           question_text: string
+          question_text_urdu?: string | null
         }
         Update: {
           correct_option_id?: string
@@ -245,6 +247,7 @@ export type Database = {
           options?: Json
           position?: number
           question_text?: string
+          question_text_urdu?: string | null
         }
         Relationships: [
           {

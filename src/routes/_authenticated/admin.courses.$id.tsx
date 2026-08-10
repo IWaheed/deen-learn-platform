@@ -180,26 +180,42 @@ function LectureRow({ lecture, onEdit, onDelete }: { lecture: any; onEdit: () =>
   const [qEditing, setQEditing] = useState<any>(null);
   const [qForm, setQForm] = useState({
     question_text: "",
+    question_text_urdu: "",
     option_a: "", option_b: "", option_c: "", option_d: "",
+    option_a_urdu: "", option_b_urdu: "", option_c_urdu: "", option_d_urdu: "",
     correct_option_id: "a",
   });
 
   function openNewQ() {
     setQEditing(null);
-    setQForm({ question_text: "", option_a: "", option_b: "", option_c: "", option_d: "", correct_option_id: "a" });
+    setQForm({
+      question_text: "", question_text_urdu: "",
+      option_a: "", option_b: "", option_c: "", option_d: "",
+      option_a_urdu: "", option_b_urdu: "", option_c_urdu: "", option_d_urdu: "",
+      correct_option_id: "a"
+    });
     setQOpen(true);
   }
 
   function openEditQ(q: any) {
     const opts: Record<string, string> = {};
-    (q.options as any[]).forEach((o: any) => { opts[`option_${o.id}`] = o.text; });
+    const optsUrdu: Record<string, string> = {};
+    (q.options as any[]).forEach((o: any) => {
+      opts[`option_${o.id}`] = o.text;
+      if (o.urdu_text) optsUrdu[`option_${o.id}_urdu`] = o.urdu_text;
+    });
     setQEditing(q);
     setQForm({
       question_text: q.question_text,
+      question_text_urdu: q.question_text_urdu ?? "",
       option_a: opts.option_a ?? "",
       option_b: opts.option_b ?? "",
       option_c: opts.option_c ?? "",
       option_d: opts.option_d ?? "",
+      option_a_urdu: optsUrdu.option_a_urdu ?? "",
+      option_b_urdu: optsUrdu.option_b_urdu ?? "",
+      option_c_urdu: optsUrdu.option_c_urdu ?? "",
+      option_d_urdu: optsUrdu.option_d_urdu ?? "",
       correct_option_id: q.correct_option_id,
     });
     setQOpen(true);
@@ -207,10 +223,15 @@ function LectureRow({ lecture, onEdit, onDelete }: { lecture: any; onEdit: () =>
 
   const saveQ = useMutation({
     mutationFn: async () => {
-      const options = OPTION_LABELS.map((id) => ({ id, text: (qForm as any)[`option_${id}`].trim() }));
+      const options = OPTION_LABELS.map((id) => ({
+        id,
+        text: (qForm as any)[`option_${id}`].trim(),
+        urdu_text: (qForm as any)[`option_${id}_urdu`]?.trim() || null
+      }));
       const payload = {
         lecture_id: lecture.id,
         question_text: qForm.question_text.trim(),
+        question_text_urdu: qForm.question_text_urdu.trim() || null,
         options: options as any,
         correct_option_id: qForm.correct_option_id,
         position: qEditing ? qEditing.position : questions.length,
@@ -291,10 +312,13 @@ function LectureRow({ lecture, onEdit, onDelete }: { lecture: any; onEdit: () =>
             <span className="text-muted-foreground shrink-0 mt-0.5">{i + 1}.</span>
             <div className="flex-1 min-w-0">
               <div className="truncate font-medium">{q.question_text}</div>
+              {q.question_text_urdu && (
+                <div className="truncate font-medium font-arabic mt-0.5" dir="rtl">{q.question_text_urdu}</div>
+              )}
               <div className="text-xs text-muted-foreground mt-0.5">
                 {(q.options as any[]).map((o: any) => (
                   <span key={o.id} className={o.id === q.correct_option_id ? "text-green-600 font-medium" : ""}>
-                    {o.id.toUpperCase()}. {o.text}{o.id === q.correct_option_id ? " ✓" : ""}{" "}
+                    {o.id.toUpperCase()}. {o.text} {o.urdu_text ? `(${o.urdu_text})` : ""}{o.id === q.correct_option_id ? " ✓" : ""}{" "}
                   </span>
                 ))}
               </div>
@@ -320,14 +344,19 @@ function LectureRow({ lecture, onEdit, onDelete }: { lecture: any; onEdit: () =>
       <Dialog open={qOpen} onOpenChange={setQOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader><DialogTitle>{qEditing ? "Edit question" : "New question"}</DialogTitle></DialogHeader>
-          <div className="space-y-3">
-            <div><Label>Question text</Label><Textarea rows={2} value={qForm.question_text} onChange={(e) => setQForm({ ...qForm, question_text: e.target.value })} /></div>
-            <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-3 max-h-[70vh] overflow-y-auto px-1">
+            <div><Label>Question text (English)</Label><Textarea rows={2} value={qForm.question_text} onChange={(e) => setQForm({ ...qForm, question_text: e.target.value })} /></div>
+            <div><Label>Question text (Urdu)</Label><Textarea rows={2} dir="rtl" className="font-arabic" value={qForm.question_text_urdu} onChange={(e) => setQForm({ ...qForm, question_text_urdu: e.target.value })} /></div>
+            <div className="space-y-3 mt-4">
               {OPTION_LABELS.map((id) => (
-                <div key={id}><Label>Option {id.toUpperCase()}</Label><Input value={(qForm as any)[`option_${id}`]} onChange={(e) => setQForm({ ...qForm as any, [`option_${id}`]: e.target.value })} /></div>
+                <div key={id} className="grid grid-cols-2 gap-3 p-3 border rounded-md">
+                  <div className="col-span-2 font-medium text-sm">Option {id.toUpperCase()}</div>
+                  <div><Label className="text-xs">English</Label><Input value={(qForm as any)[`option_${id}`]} onChange={(e) => setQForm({ ...qForm as any, [`option_${id}`]: e.target.value })} /></div>
+                  <div><Label className="text-xs">Urdu</Label><Input dir="rtl" className="font-arabic" value={(qForm as any)[`option_${id}_urdu`]} onChange={(e) => setQForm({ ...qForm as any, [`option_${id}_urdu`]: e.target.value })} /></div>
+                </div>
               ))}
             </div>
-            <div>
+            <div className="pt-2">
               <Label>Correct answer</Label>
               <RadioGroup value={qForm.correct_option_id} onValueChange={(v) => setQForm({ ...qForm, correct_option_id: v })} className="flex gap-4 mt-1">
                 {OPTION_LABELS.map((id) => (

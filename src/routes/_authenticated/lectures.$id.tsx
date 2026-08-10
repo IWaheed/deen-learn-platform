@@ -343,7 +343,7 @@ function QuizSection({ lectureId, userId }: { lectureId: string; userId?: string
 
       <Card className="mt-4 p-5 space-y-6 bg-card/70">
         {questions.map((q: any, qi: number) => {
-          const options: { id: string; text: string }[] = q.options as any;
+          const options: { id: string; text: string; urdu_text?: string | null }[] = q.options as any;
           const isCorrect = submitted ? submitted.results.find((r: any) => r.questionId === q.id)?.isCorrect : null;
 
           return (
@@ -352,6 +352,9 @@ function QuizSection({ lectureId, userId }: { lectureId: string; userId?: string
                 <span className="text-sm font-bold text-primary mt-0.5">{qi + 1}.</span>
                 <div className="flex-1">
                   <p className="text-sm font-medium">{q.question_text}</p>
+                  {q.question_text_urdu && (
+                    <p className="text-sm font-medium font-arabic mt-1" dir="rtl">{q.question_text_urdu}</p>
+                  )}
                   <RadioGroup
                     value={answers[q.id] ?? ""}
                     onValueChange={(v) => setAnswers({ ...answers, [q.id]: v })}
@@ -365,7 +368,10 @@ function QuizSection({ lectureId, userId }: { lectureId: string; userId?: string
                       return (
                         <div key={o.id} className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm ${showCorrect ? "bg-green-50 text-green-800" : showWrong ? "bg-red-50 text-red-800" : ""}`}>
                           <RadioGroupItem value={o.id} id={`q${qi}-${o.id}`} disabled={!!submitted} />
-                          <Label htmlFor={`q${qi}-${o.id}`} className="flex-1 cursor-pointer text-sm">{o.text}</Label>
+                          <Label htmlFor={`q${qi}-${o.id}`} className="flex-1 cursor-pointer text-sm flex flex-col gap-0.5">
+                            <span>{o.text}</span>
+                            {o.urdu_text && <span className="font-arabic" dir="rtl">{o.urdu_text}</span>}
+                          </Label>
                           {showCorrect && <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />}
                           {showWrong && <XCircle className="h-4 w-4 text-red-600 shrink-0" />}
                         </div>
