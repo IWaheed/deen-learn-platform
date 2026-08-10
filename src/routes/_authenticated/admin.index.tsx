@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Spinner } from "@/components/spinner";
+import type { Tables } from "@/integrations/supabase/types";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   component: AdminCourses,
@@ -40,7 +41,7 @@ function AdminCourses() {
   });
 
   const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState<any>(null);
+  const [editing, setEditing] = useState<Tables<"courses"> | null>(null);
   const [form, setForm] = useState({ title: "", slug: "", description: "", cover_url: "", is_published: true });
 
   function openNew() {
@@ -48,7 +49,7 @@ function AdminCourses() {
     setForm({ title: "", slug: "", description: "", cover_url: "", is_published: true });
     setOpen(true);
   }
-  function openEdit(c: any) {
+  function openEdit(c: Tables<"courses">) {
     setEditing(c);
     setForm({ title: c.title, slug: c.slug, description: c.description ?? "", cover_url: c.cover_url ?? "", is_published: c.is_published });
     setOpen(true);
