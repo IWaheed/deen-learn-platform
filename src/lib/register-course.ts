@@ -26,9 +26,9 @@ export const registerForCourse = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers({ perPage: 10000 });
-    const existingUser = existingUsers?.users.find(
-      (u) => u.email?.toLowerCase() === input.email.toLowerCase(),
-    ) ?? null;
+    const existingUser =
+      existingUsers?.users.find((u) => u.email?.toLowerCase() === input.email.toLowerCase()) ??
+      null;
 
     let userId: string;
     let rollNumber: string = "";
@@ -72,7 +72,7 @@ export const registerForCourse = createServerFn({ method: "POST" })
 
       let roll: number;
       do {
-        roll = ROLL_MIN + Math.floor(Math.random() * (ROLL_MAX - ROLL_MIN + 1));
+        roll = crypto.randomInt(ROLL_MIN, ROLL_MAX + 1);
       } while (taken.has(roll));
 
       rollNumber = String(roll);
