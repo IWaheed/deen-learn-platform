@@ -104,7 +104,10 @@ export const downloadCsv = createServerFn({ method: "POST" }).handler(async () =
       r.completedLevel1,
       r.promiseToParticipate,
     ]
-      .map((v) => `"${v.replace(/"/g, '""')}"`)
+      .map((v) => {
+        const sanitized = /^[=+\-@\t\r]/.test(v) ? `'${v}` : v;
+        return `"${sanitized.replace(/"/g, '""')}"`;
+      })
       .join(","),
   );
 
