@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AnimateIn } from "@/components/animate-in";
 import { Skeleton } from "@/components/skeleton";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const listStudents = createServerFn({ method: 'GET' })
   .handler(async () => {
@@ -51,56 +52,67 @@ function AdminStudentsPage() {
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="space-y-3">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-4 rounded-xl border border-border/60 bg-card p-5">
-              <Skeleton className="h-10 w-10 rounded-full shrink-0" />
-              <div className="flex-1 space-y-2">
-                <Skeleton className="h-5 w-2/3" />
-                <Skeleton className="h-4 w-1/3" />
-              </div>
-              <Skeleton className="h-8 w-24 rounded-md" />
-            </div>
-          ))}
-        </div>
-      ) : students.length === 0 ? (
-        <Card className="p-12 text-center border-dashed">
-          <GraduationCap className="h-10 w-10 mx-auto text-muted-foreground" />
-          <p className="mt-4 text-muted-foreground font-serif italic text-lg">No students registered yet.</p>
-        </Card>
-      ) : (
-        <div className="space-y-2">
-          {students.map((s, i) => (
-            <AnimateIn key={s.id} animation="fade-in" delay={i * 30}>
-              <Card className="p-4 flex items-center gap-4 hover:bg-card/80 transition-colors">
-                <div className="h-10 w-10 shrink-0 rounded-full bg-primary/10 text-primary grid place-items-center font-serif font-bold text-sm">
-                  {s.rollNumber ? s.rollNumber.slice(-4) : '??'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium truncate">{s.fullName}</div>
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
-                    <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{s.email}</span>
-                    <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{new Date(s.createdAt).toLocaleDateString()}</span>
-                  </div>
-                </div>
-                <div className="text-right shrink-0">
-                  {s.rollNumber ? (
-                    <div className="font-mono text-lg font-bold text-primary">{s.rollNumber}</div>
-                  ) : (
-                    <Badge variant="outline" className="text-xs">No roll number</Badge>
-                  )}
-                  {s.enrolledCourses.length > 0 && (
-                    <div className="text-xs text-muted-foreground mt-0.5">
-                      {s.enrolledCourses.length} enrollment{s.enrolledCourses.length !== 1 ? 's' : ''}
+      <Card className="overflow-hidden">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Roll Number</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Enrolled Courses</TableHead>
+                <TableHead>Joined</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-32" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-48" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                  </TableRow>
+                ))
+              ) : students.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
+                    <div className="flex flex-col items-center justify-center">
+                      <GraduationCap className="h-10 w-10 text-muted-foreground/50 mb-2" />
+                      <p className="font-serif italic text-lg">No students registered yet.</p>
                     </div>
-                  )}
-                </div>
-              </Card>
-            </AnimateIn>
-          ))}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                students.map((s) => (
+                  <TableRow key={s.id}>
+                    <TableCell>
+                      {s.rollNumber ? (
+                        <span className="font-mono font-medium">{s.rollNumber}</span>
+                      ) : (
+                        <Badge variant="outline" className="text-xs">None</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="font-medium">{s.fullName}</TableCell>
+                    <TableCell>{s.email}</TableCell>
+                    <TableCell>
+                      {s.enrolledCourses.length > 0 ? (
+                        <Badge variant="secondary">{s.enrolledCourses.length}</Badge>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {new Date(s.createdAt).toLocaleDateString()}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </div>
-      )}
+      </Card>
     </div>
   )
 }
