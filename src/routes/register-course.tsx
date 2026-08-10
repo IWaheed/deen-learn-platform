@@ -34,6 +34,7 @@ export const Route = createFileRoute("/register-course")({
 function RegisterCoursePage() {
   const [fullNameEn, setFullNameEn] = useState("");
   const [fullNameUr, setFullNameUr] = useState("");
+  const [gender, setGender] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [age, setAge] = useState("");
@@ -52,6 +53,7 @@ function RegisterCoursePage() {
     e.preventDefault();
     if (!fullNameEn.trim()) return toast.error("Full name in English is required");
     if (!fullNameUr.trim()) return toast.error("Full name in Urdu is required");
+    if (!gender) return toast.error("Gender is required");
     if (!email.trim()) return toast.error("Email is required");
     if (password && password.length < 6)
       return toast.error("Password must be at least 6 characters");
@@ -66,20 +68,23 @@ function RegisterCoursePage() {
 
     setLoading(true);
     try {
-      const result = await registerForCourse({ data: {
-        fullNameEn: fullNameEn.trim(),
-        fullNameUr: fullNameUr.trim(),
-        email: email.trim(),
-        password: password.trim(),
-        age: age.trim(),
-        phoneNumber: phoneNumber.trim(),
-        education: education.trim(),
-        islamicEducation: islamicEducation.trim(),
-        scholarsListenedTo: scholarsListenedTo.trim(),
-        howHeard: howHeard.trim(),
-        completedLevel1,
-        promiseToParticipate,
-      } });
+      const result = await registerForCourse({
+        data: {
+          fullNameEn: fullNameEn.trim(),
+          fullNameUr: fullNameUr.trim(),
+          gender,
+          email: email.trim(),
+          password: password.trim(),
+          age: age.trim(),
+          phoneNumber: phoneNumber.trim(),
+          education: education.trim(),
+          islamicEducation: islamicEducation.trim(),
+          scholarsListenedTo: scholarsListenedTo.trim(),
+          howHeard: howHeard.trim(),
+          completedLevel1,
+          promiseToParticipate,
+        },
+      });
       setResultRoll(result.rollNumber);
       setShowSuccess(true);
     } catch (err) {
@@ -98,9 +103,7 @@ function RegisterCoursePage() {
             <AlertDialogTitle>Registration successful</AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-3">
-                <p>
-                  Your account has been created. Your Student ID is shown below.
-                </p>
+                <p>Your account has been created. Your Student ID is shown below.</p>
                 <div className="rounded-lg border bg-muted/50 p-4 text-center">
                   <p className="text-xs text-muted-foreground uppercase tracking-wide">
                     Your Student ID
@@ -163,6 +166,43 @@ function RegisterCoursePage() {
                 dir="rtl"
                 className="text-right font-urdu"
               />
+            </Field>
+
+            <Field label="Gender" required>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setGender("Male")}
+                  className={`flex-1 rounded-lg border py-2.5 text-sm font-medium transition-all ${
+                    gender === "Male"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border hover:border-muted-foreground/30"
+                  }`}
+                >
+                  <Check
+                    className={`h-4 w-4 inline mr-1.5 ${
+                      gender === "Male" ? "opacity-100" : "opacity-0"
+                    }`}
+                  />
+                  Male
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGender("Female")}
+                  className={`flex-1 rounded-lg border py-2.5 text-sm font-medium transition-all ${
+                    gender === "Female"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border hover:border-muted-foreground/30"
+                  }`}
+                >
+                  <Check
+                    className={`h-4 w-4 inline mr-1.5 ${
+                      gender === "Female" ? "opacity-100" : "opacity-0"
+                    }`}
+                  />
+                  Female
+                </button>
+              </div>
             </Field>
 
             <Field label="Email" required>
