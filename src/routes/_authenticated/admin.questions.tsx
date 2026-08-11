@@ -27,7 +27,9 @@ function AdminQuestions() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("questions")
-        .select("id, subject, body, answer, answered_at, created_at, user_id, lecture_id, lectures(title)")
+        .select(
+          "id, subject, body, answer, answered_at, created_at, user_id, lecture_id, lectures(title)",
+        )
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
@@ -37,10 +39,16 @@ function AdminQuestions() {
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const reply = useMutation({
     mutationFn: async ({ id, answer }: { id: string; answer: string }) => {
-      const { error } = await supabase.from("questions").update({ answer, answered_at: new Date().toISOString() }).eq("id", id);
+      const { error } = await supabase
+        .from("questions")
+        .update({ answer, answered_at: new Date().toISOString() })
+        .eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => { toast.success("Reply sent"); qc.invalidateQueries({ queryKey: ["admin-questions"] }); },
+    onSuccess: () => {
+      toast.success("Reply sent");
+      qc.invalidateQueries({ queryKey: ["admin-questions"] });
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -60,9 +68,15 @@ function AdminQuestions() {
           <Card key={q.id} className="p-5">
             <div className="flex items-start justify-between gap-3">
               <h3 className="font-serif text-lg text-primary">{q.subject}</h3>
-              {q.answer ? <Badge className="bg-primary/10 text-primary hover:bg-primary/10">Answered</Badge> : <Badge variant="outline">New</Badge>}
+              {q.answer ? (
+                <Badge className="bg-primary/10 text-primary hover:bg-primary/10">Answered</Badge>
+              ) : (
+                <Badge variant="outline">New</Badge>
+              )}
             </div>
-            {q.lectures?.title && <div className="text-xs text-muted-foreground mt-1">On: {q.lectures.title}</div>}
+            {q.lectures?.title && (
+              <div className="text-xs text-muted-foreground mt-1">On: {q.lectures.title}</div>
+            )}
             <p className="mt-2 text-sm whitespace-pre-wrap">{q.body}</p>
             <div className="mt-4">
               <Textarea
@@ -72,21 +86,27 @@ function AdminQuestions() {
                 onChange={(e) => setDrafts({ ...drafts, [q.id]: e.target.value })}
               />
               <div className="flex justify-end mt-2">
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      const answer = (drafts[q.id] ?? q.answer ?? "").trim();
-                      if (!answer) return toast.error("Reply cannot be empty");
-                      reply.mutate({ id: q.id, answer });
-                    }}
-                    disabled={reply.isPending}
-                  >
-                    {reply.isPending ? <Spinner className="h-4 w-4 mr-1.5" /> : <Send className="h-4 w-4 mr-1.5" />}
-                    {q.answer ? "Update reply" : "Send reply"}
-                  </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    const answer = (drafts[q.id] ?? q.answer ?? "").trim();
+                    if (!answer) return toast.error("Reply cannot be empty");
+                    reply.mutate({ id: q.id, answer });
+                  }}
+                  disabled={reply.isPending}
+                >
+                  {reply.isPending ? (
+                    <Spinner className="h-4 w-4 mr-1.5" />
+                  ) : (
+                    <Send className="h-4 w-4 mr-1.5" />
+                  )}
+                  {q.answer ? "Update reply" : "Send reply"}
+                </Button>
               </div>
             </div>
-            <div className="mt-2 text-xs text-muted-foreground">{new Date(q.created_at).toLocaleString()}</div>
+            <div className="mt-2 text-xs text-muted-foreground">
+              {new Date(q.created_at).toLocaleString()}
+            </div>
           </Card>
         ))}
       </div>

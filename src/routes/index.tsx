@@ -33,21 +33,24 @@ function Index() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("courses")
-        .select("id, slug, title, description, cover_url, created_at")
+        .select("id, slug, title, description, cover_url, created_at, lectures(count)")
         .eq("is_published", true)
         .order("created_at", { ascending: false });
       if (error) throw error;
 
-      const coursesWithCounts = await Promise.all(
-        (data ?? []).map(async (c) => {
-          const { count } = await supabase
-            .from("lectures")
-            .select("*", { count: "exact", head: true })
-            .eq("course_id", c.id);
-          return { ...c, lecture_count: count ?? 0 };
-        }),
-      );
-      return coursesWithCounts;
+      return (data ?? []).map((c) => {
+        // Handle the count from the nested relation, which Supabase returns as an array with a count property
+        const countObj = c.lectures as unknown as [{ count: number }] | { count: number } | null;
+        let lectureCount = 0;
+
+        if (Array.isArray(countObj) && countObj.length > 0) {
+          lectureCount = countObj[0].count;
+        } else if (countObj && !Array.isArray(countObj) && typeof countObj.count === "number") {
+          lectureCount = countObj.count;
+        }
+
+        return { ...c, lecture_count: lectureCount };
+      });
     },
   });
 

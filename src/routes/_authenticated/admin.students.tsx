@@ -6,39 +6,45 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AnimateIn } from "@/components/animate-in";
 import { Skeleton } from "@/components/skeleton";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
-const listStudents = createServerFn({ method: 'GET' })
-  .handler(async () => {
-    const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-    const { data } = await supabaseAdmin.auth.admin.listUsers({ perPage: 10000 })
-    return (data?.users ?? [])
-      .filter(u => u.email)
-      .map(u => ({
-        id: u.id,
-        email: u.email!,
-        fullName: (u.user_metadata?.full_name as string) ?? u.email!.split('@')[0],
-        rollNumber: (u.user_metadata?.roll_number as string) ?? null,
-        enrolledCourses: (u.user_metadata?.enrolled_courses as string[]) ?? [],
-        createdAt: u.created_at,
-      }))
-      .sort((a, b) => {
-        if (!a.rollNumber) return 1
-        if (!b.rollNumber) return -1
-        return a.rollNumber.localeCompare(b.rollNumber)
-      })
-  })
+const listStudents = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin.auth.admin.listUsers({ perPage: 10000 });
+  return (data?.users ?? [])
+    .filter((u) => u.email)
+    .map((u) => ({
+      id: u.id,
+      email: u.email!,
+      fullName: (u.user_metadata?.full_name as string) ?? u.email!.split("@")[0],
+      rollNumber: (u.user_metadata?.roll_number as string) ?? null,
+      enrolledCourses: (u.user_metadata?.enrolled_courses as string[]) ?? [],
+      createdAt: u.created_at,
+    }))
+    .sort((a, b) => {
+      if (!a.rollNumber) return 1;
+      if (!b.rollNumber) return -1;
+      return a.rollNumber.localeCompare(b.rollNumber);
+    });
+});
 
 export const Route = createFileRoute("/_authenticated/admin/students")({
   component: AdminStudentsPage,
   head: () => ({ meta: [{ title: "Students — Admin — Deen Learn Platform" }] }),
-})
+});
 
 function AdminStudentsPage() {
   const { data: students = [], isLoading } = useQuery({
     queryKey: ["admin", "students"],
     queryFn: listStudents,
-  })
+  });
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
@@ -48,7 +54,9 @@ function AdminStudentsPage() {
         </div>
         <div>
           <h1 className="font-serif text-2xl text-primary">Students</h1>
-          <p className="text-sm text-muted-foreground">{students.length} registered student{students.length !== 1 ? 's' : ''}</p>
+          <p className="text-sm text-muted-foreground">
+            {students.length} registered student{students.length !== 1 ? "s" : ""}
+          </p>
         </div>
       </div>
 
@@ -68,11 +76,21 @@ function AdminStudentsPage() {
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    <TableCell><Skeleton className="h-5 w-20" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-32" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-48" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-16" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 w-20" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 w-32" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 w-48" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 w-16" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 w-24" />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : students.length === 0 ? (
@@ -91,7 +109,9 @@ function AdminStudentsPage() {
                       {s.rollNumber ? (
                         <span className="font-mono font-medium">{s.rollNumber}</span>
                       ) : (
-                        <Badge variant="outline" className="text-xs">None</Badge>
+                        <Badge variant="outline" className="text-xs">
+                          None
+                        </Badge>
                       )}
                     </TableCell>
                     <TableCell className="font-medium">{s.fullName}</TableCell>
@@ -114,5 +134,5 @@ function AdminStudentsPage() {
         </div>
       </Card>
     </div>
-  )
+  );
 }
