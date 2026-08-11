@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
+import { randomInt } from 'node:crypto'
 
 const ROLL_MIN = 3030000
 const ROLL_MAX = 3099999
@@ -24,7 +25,7 @@ export const getNextRollNumber = createServerFn({ method: 'GET' })
 
     let roll: number
     do {
-      roll = ROLL_MIN + Math.floor(Math.random() * (ROLL_MAX - ROLL_MIN + 1))
+      roll = randomInt(ROLL_MIN, ROLL_MAX + 1)
     } while (taken.has(roll))
 
     return String(roll)
