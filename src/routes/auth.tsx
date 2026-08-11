@@ -101,10 +101,12 @@ function AuthPage() {
     if (!rollLoginEmail.trim()) return toast.error("Enter your email");
     setLoading(true);
     try {
-      const result = await loginWithRollNumber({ data: {
-        rollNumber: rollLoginRoll.trim(),
-        email: rollLoginEmail.trim(),
-      } });
+      const result = await loginWithRollNumber({
+        data: {
+          rollNumber: rollLoginRoll.trim(),
+          email: rollLoginEmail.trim(),
+        },
+      });
 
       setLoading(false);
 

@@ -21,12 +21,18 @@ export function SiteFooter() {
             <div className="text-xs text-muted-foreground/60 mt-1">— Ibn Mājah, 224</div>
           </div>
           <div className="flex flex-col items-center md:items-end gap-2">
-            <span className="font-arabic text-sm leading-relaxed" dir="rtl">{getHijriDate()}</span>
+            <span className="font-arabic text-sm leading-relaxed" dir="rtl">
+              {getHijriDate()}
+            </span>
             <span>© {new Date().getFullYear()} Deen Learn Platform</span>
             <div className="flex items-center gap-3 text-xs">
-              <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+              <Link to="/terms" className="hover:text-foreground transition-colors">
+                Terms
+              </Link>
               <span className="text-border">·</span>
-              <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+              <Link to="/privacy" className="hover:text-foreground transition-colors">
+                Privacy
+              </Link>
             </div>
           </div>
         </div>

@@ -54,29 +54,17 @@ export const registerForCourse = createServerFn({ method: "POST" })
     }
 
     if (!rollNumber) {
-      const ROLL_MIN = 3030000;
-      const ROLL_MAX = 3099999;
+      const { data: nextRoll, error: rpcError } = await supabaseAdmin.rpc("next_roll_number");
 
-      const { data: allUsers } = await supabaseAdmin.auth.admin.listUsers({ perPage: 10000 });
-      const taken = new Set<number>();
-      for (const u of allUsers?.users ?? []) {
-        const rn = u.user_metadata?.roll_number as string | undefined;
-        if (rn) {
-          const num = parseInt(rn, 10);
-          if (!isNaN(num)) taken.add(num);
-        }
+      if (rpcError) {
+        throw new Error(`Failed to generate roll number: ${rpcError.message}`);
       }
 
-      if (taken.size >= ROLL_MAX - ROLL_MIN + 1) {
+      if (!nextRoll) {
         throw new Error("No available roll numbers");
       }
 
-      let roll: number;
-      do {
-        roll = ROLL_MIN + Math.floor(Math.random() * (ROLL_MAX - ROLL_MIN + 1));
-      } while (taken.has(roll));
-
-      rollNumber = String(roll);
+      rollNumber = String(nextRoll);
     }
 
     const currentMeta = existingUser?.user_metadata ?? {};
