@@ -32,7 +32,13 @@ export function useAuth(): AuthState {
     });
 
     const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED" && event !== "INITIAL_SESSION") return;
+      if (
+        event !== "SIGNED_IN" &&
+        event !== "SIGNED_OUT" &&
+        event !== "USER_UPDATED" &&
+        event !== "INITIAL_SESSION"
+      )
+        return;
       const user = session?.user ?? null;
       const isAdmin = await loadRole(user);
       if (mounted) setState({ loading: false, user, isAdmin });

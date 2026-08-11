@@ -22,16 +22,30 @@ function TermsPage() {
         <div className="gold-divider mt-4 mb-8" />
         <div className="prose prose-sm max-w-none text-muted-foreground space-y-6">
           <p>
-            By accessing Deen Learn Platform, you agree to these terms. If you do not agree, do not use the platform.
+            By accessing Deen Learn Platform, you agree to these terms. If you do not agree, do not
+            use the platform.
           </p>
           <h2 className="font-serif text-xl text-primary">1. Accounts</h2>
-          <p>You are responsible for maintaining the confidentiality of your account credentials and for all activity under your account.</p>
+          <p>
+            You are responsible for maintaining the confidentiality of your account credentials and
+            for all activity under your account.
+          </p>
           <h2 className="font-serif text-xl text-primary">2. Content</h2>
-          <p>Course materials are provided for personal study only. Redistribution, reproduction, or commercial use of lecture recordings, notes, or documents is prohibited without explicit permission.</p>
+          <p>
+            Course materials are provided for personal study only. Redistribution, reproduction, or
+            commercial use of lecture recordings, notes, or documents is prohibited without explicit
+            permission.
+          </p>
           <h2 className="font-serif text-xl text-primary">3. Conduct</h2>
-          <p>Users must not misuse the platform, including submitting abusive questions or attempting to circumvent access controls.</p>
+          <p>
+            Users must not misuse the platform, including submitting abusive questions or attempting
+            to circumvent access controls.
+          </p>
           <h2 className="font-serif text-xl text-primary">4. Limitation of Liability</h2>
-          <p>Deen Learn Platform is provided "as is" without warranties of any kind. We are not liable for any damages arising from your use of the platform.</p>
+          <p>
+            Deen Learn Platform is provided "as is" without warranties of any kind. We are not
+            liable for any damages arising from your use of the platform.
+          </p>
           <p className="text-sm pt-4">If you have questions, contact us via the platform.</p>
         </div>
       </main>

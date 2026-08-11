@@ -2,7 +2,18 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, FileText, Download, Send, CheckCircle2, XCircle, RotateCcw } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  FileText,
+  Download,
+  Send,
+  CheckCircle2,
+  XCircle,
+  RotateCcw,
+} from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,15 +41,24 @@ export const Route = createFileRoute("/_authenticated/lectures/$id")({
   },
   head: ({ loaderData }) => ({
     meta: [
-      { title: loaderData?.title ? `${loaderData.title} — Deen Learn Platform` : "Lecture — Deen Learn Platform" },
-      { name: "description", content: `Lecture: ${loaderData?.title ?? ""} — part of ${(loaderData as any)?.courses?.title ?? "Deen Learn Platform"}` },
+      {
+        title: loaderData?.title
+          ? `${loaderData.title} — Deen Learn Platform`
+          : "Lecture — Deen Learn Platform",
+      },
+      {
+        name: "description",
+        content: `Lecture: ${loaderData?.title ?? ""} — part of ${(loaderData as any)?.courses?.title ?? "Deen Learn Platform"}`,
+      },
     ],
   }),
 });
 
 function extractYouTubeId(url?: string | null): string | null {
   if (!url) return null;
-  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([\w-]{11})/);
+  const m = url.match(
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([\w-]{11})/,
+  );
   return m ? m[1] : null;
 }
 
@@ -118,7 +138,8 @@ function LecturePage() {
     },
     onSuccess: () => {
       toast.success("Your question has been sent to the teacher.");
-      setSubject(""); setBody("");
+      setSubject("");
+      setBody("");
       qc.invalidateQueries({ queryKey: ["my-questions"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -135,7 +156,11 @@ function LecturePage() {
             <Breadcrumbs
               crumbs={[
                 { label: "Home", to: "/" },
-                { label: (lecture.courses as any)?.title ?? "Course", to: "/courses/$slug", params: { slug: (lecture.courses as any)?.slug } },
+                {
+                  label: (lecture.courses as any)?.title ?? "Course",
+                  to: "/courses/$slug",
+                  params: { slug: (lecture.courses as any)?.slug },
+                },
                 { label: lecture.title },
               ]}
             />
@@ -145,8 +170,12 @@ function LecturePage() {
                 <span>Lecture {lecture.position}</span>
                 <span className="w-8 h-px bg-gold/50" />
               </div>
-              <h1 className="font-serif text-3xl md:text-4xl text-primary leading-tight">{lecture.title}</h1>
-              {lecture.description && <p className="mt-3 text-muted-foreground leading-relaxed">{lecture.description}</p>}
+              <h1 className="font-serif text-3xl md:text-4xl text-primary leading-tight">
+                {lecture.title}
+              </h1>
+              {lecture.description && (
+                <p className="mt-3 text-muted-foreground leading-relaxed">{lecture.description}</p>
+              )}
             </AnimateIn>
 
             {/* Video */}
@@ -177,14 +206,18 @@ function LecturePage() {
                       <ChevronLeft className="h-4 w-4 mr-1" /> {prevLecture.title}
                     </Link>
                   </Button>
-                ) : <div />}
+                ) : (
+                  <div />
+                )}
                 {nextLecture ? (
                   <Button asChild variant="outline" size="sm">
                     <Link to="/lectures/$id" params={{ id: nextLecture.id }}>
                       {nextLecture.title} <ChevronRight className="h-4 w-4 ml-1" />
                     </Link>
                   </Button>
-                ) : <div />}
+                ) : (
+                  <div />
+                )}
               </div>
             </AnimateIn>
 
@@ -202,13 +235,24 @@ function LecturePage() {
                 ) : (
                   <div className="space-y-2">
                     {docs.map((d) => (
-                      <Card key={d.id} className="p-3 flex items-center gap-3 transition-all hover:shadow-sm">
+                      <Card
+                        key={d.id}
+                        className="p-3 flex items-center gap-3 transition-all hover:shadow-sm"
+                      >
                         <FileText className="h-5 w-5 text-primary shrink-0" />
                         <div className="flex-1 min-w-0">
                           <div className="truncate text-sm font-medium">{d.name}</div>
-                          {d.size_bytes && <div className="text-xs text-muted-foreground">{(d.size_bytes / 1024).toFixed(0)} KB</div>}
+                          {d.size_bytes && (
+                            <div className="text-xs text-muted-foreground">
+                              {(d.size_bytes / 1024).toFixed(0)} KB
+                            </div>
+                          )}
                         </div>
-                        <Button size="sm" variant="ghost" onClick={() => download(d.storage_path, d.name)}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => download(d.storage_path, d.name)}
+                        >
                           <Download className="h-4 w-4" />
                         </Button>
                       </Card>
@@ -230,14 +274,42 @@ function LecturePage() {
                   <span>Ask the teacher</span>
                   <span className="w-8 h-px bg-gold/50" />
                 </div>
-                <h2 className="mt-1 font-serif text-2xl text-primary">Have a question on this lecture?</h2>
-                <p className="text-sm text-muted-foreground mt-1">Your question is private, sent directly to the shaykh.</p>
+                <h2 className="mt-1 font-serif text-2xl text-primary">
+                  Have a question on this lecture?
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Your question is private, sent directly to the shaykh.
+                </p>
                 <Card className="mt-4 p-5 space-y-3 bg-card/70">
-                  <div><Label>Subject</Label><Input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="e.g. Regarding the second condition of ṭahārah" maxLength={200} /></div>
-                  <div><Label>Your question</Label><Textarea rows={5} value={body} onChange={(e) => setBody(e.target.value)} maxLength={2000} /></div>
+                  <div>
+                    <Label>Subject</Label>
+                    <Input
+                      value={subject}
+                      onChange={(e) => setSubject(e.target.value)}
+                      placeholder="e.g. Regarding the second condition of ṭahārah"
+                      maxLength={200}
+                    />
+                  </div>
+                  <div>
+                    <Label>Your question</Label>
+                    <Textarea
+                      rows={5}
+                      value={body}
+                      onChange={(e) => setBody(e.target.value)}
+                      maxLength={2000}
+                    />
+                  </div>
                   <div className="flex justify-end">
-                    <Button onClick={() => ask.mutate()} disabled={ask.isPending || !subject.trim() || !body.trim()} className="shadow-scholarly">
-                      {ask.isPending ? <Spinner className="h-4 w-4 mr-1.5" /> : <Send className="h-4 w-4 mr-1.5" />}
+                    <Button
+                      onClick={() => ask.mutate()}
+                      disabled={ask.isPending || !subject.trim() || !body.trim()}
+                      className="shadow-scholarly"
+                    >
+                      {ask.isPending ? (
+                        <Spinner className="h-4 w-4 mr-1.5" />
+                      ) : (
+                        <Send className="h-4 w-4 mr-1.5" />
+                      )}
                       Send question
                     </Button>
                   </div>
@@ -258,7 +330,11 @@ function QuizSection({ lectureId, userId }: { lectureId: string; userId?: string
   const { data: questions = [] } = useQuery({
     queryKey: ["quiz-questions", lectureId],
     queryFn: async () => {
-      const { data, error } = await supabase.from("quiz_questions").select("*").eq("lecture_id", lectureId).order("position");
+      const { data, error } = await supabase
+        .from("quiz_questions")
+        .select("*")
+        .eq("lecture_id", lectureId)
+        .order("position");
       if (error) throw error;
       return data;
     },
@@ -268,7 +344,12 @@ function QuizSection({ lectureId, userId }: { lectureId: string; userId?: string
     queryKey: ["quiz-attempts", lectureId],
     enabled: !!userId,
     queryFn: async () => {
-      const { data, error } = await supabase.from("quiz_attempts").select("*").eq("lecture_id", lectureId).eq("user_id", userId!).order("completed_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("quiz_attempts")
+        .select("*")
+        .eq("lecture_id", lectureId)
+        .eq("user_id", userId!)
+        .order("completed_at", { ascending: false });
       if (error) throw error;
       return data;
     },
@@ -285,7 +366,8 @@ function QuizSection({ lectureId, userId }: { lectureId: string; userId?: string
   const submitQuiz = useMutation({
     mutationFn: async () => {
       if (!userId) throw new Error("Sign in required");
-      if (Object.keys(answers).length !== questions.length) throw new Error("Answer all questions first");
+      if (Object.keys(answers).length !== questions.length)
+        throw new Error("Answer all questions first");
 
       let score = 0;
       const questionResults = questions.map((q: any) => {
@@ -308,7 +390,7 @@ function QuizSection({ lectureId, userId }: { lectureId: string; userId?: string
           question_id: r.questionId,
           selected_option_id: r.selectedOptionId,
           is_correct: r.isCorrect,
-        }))
+        })),
       );
       if (answersErr) throw answersErr;
 
@@ -324,7 +406,10 @@ function QuizSection({ lectureId, userId }: { lectureId: string; userId?: string
 
   if (questions.length === 0) return null;
 
-  const bestAttempt = attempts.length > 0 ? attempts.reduce((best: any, a: any) => a.score > best.score ? a : best, attempts[0]) : null;
+  const bestAttempt =
+    attempts.length > 0
+      ? attempts.reduce((best: any, a: any) => (a.score > best.score ? a : best), attempts[0])
+      : null;
 
   return (
     <section className="mt-14">
@@ -333,18 +418,27 @@ function QuizSection({ lectureId, userId }: { lectureId: string; userId?: string
         <span className="w-8 h-px bg-gold/50" />
       </div>
       <h2 className="mt-1 font-serif text-2xl text-primary">Test your knowledge</h2>
-      <p className="text-sm text-muted-foreground mt-1">Answer the following multiple-choice questions.</p>
+      <p className="text-sm text-muted-foreground mt-1">
+        Answer the following multiple-choice questions.
+      </p>
 
       {bestAttempt && !submitted && (
         <p className="text-sm text-muted-foreground mt-2">
-          Best score: <span className="text-primary font-medium">{bestAttempt.score}/{bestAttempt.total}</span> ({attempts.length} attempt{attempts.length !== 1 ? "s" : ""})
+          Best score:{" "}
+          <span className="text-primary font-medium">
+            {bestAttempt.score}/{bestAttempt.total}
+          </span>{" "}
+          ({attempts.length} attempt{attempts.length !== 1 ? "s" : ""})
         </p>
       )}
 
       <Card className="mt-4 p-5 space-y-6 bg-card/70">
         {questions.map((q: any, qi: number) => {
-          const options: { id: string; text: string; urdu_text?: string | null }[] = q.options as any;
-          const isCorrect = submitted ? submitted.results.find((r: any) => r.questionId === q.id)?.isCorrect : null;
+          const options: { id: string; text: string; urdu_text?: string | null }[] =
+            q.options as any;
+          const isCorrect = submitted
+            ? submitted.results.find((r: any) => r.questionId === q.id)?.isCorrect
+            : null;
 
           return (
             <div key={q.id}>
@@ -353,7 +447,9 @@ function QuizSection({ lectureId, userId }: { lectureId: string; userId?: string
                 <div className="flex-1">
                   <p className="text-sm font-medium">{q.question_text}</p>
                   {q.question_text_urdu && (
-                    <p className="text-sm font-medium font-arabic mt-1" dir="rtl">{q.question_text_urdu}</p>
+                    <p className="text-sm font-medium font-arabic mt-1" dir="rtl">
+                      {q.question_text_urdu}
+                    </p>
                   )}
                   <RadioGroup
                     value={answers[q.id] ?? ""}
@@ -366,13 +462,29 @@ function QuizSection({ lectureId, userId }: { lectureId: string; userId?: string
                       const showCorrect = submitted && o.id === q.correct_option_id;
                       const showWrong = submitted && selected && o.id !== q.correct_option_id;
                       return (
-                        <div key={o.id} className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm ${showCorrect ? "bg-green-50 text-green-800" : showWrong ? "bg-red-50 text-red-800" : ""}`}>
-                          <RadioGroupItem value={o.id} id={`q${qi}-${o.id}`} disabled={!!submitted} />
-                          <Label htmlFor={`q${qi}-${o.id}`} className="flex-1 cursor-pointer text-sm flex flex-col gap-0.5">
+                        <div
+                          key={o.id}
+                          className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm ${showCorrect ? "bg-green-50 text-green-800" : showWrong ? "bg-red-50 text-red-800" : ""}`}
+                        >
+                          <RadioGroupItem
+                            value={o.id}
+                            id={`q${qi}-${o.id}`}
+                            disabled={!!submitted}
+                          />
+                          <Label
+                            htmlFor={`q${qi}-${o.id}`}
+                            className="flex-1 cursor-pointer text-sm flex flex-col gap-0.5"
+                          >
                             <span>{o.text}</span>
-                            {o.urdu_text && <span className="font-arabic" dir="rtl">{o.urdu_text}</span>}
+                            {o.urdu_text && (
+                              <span className="font-arabic" dir="rtl">
+                                {o.urdu_text}
+                              </span>
+                            )}
                           </Label>
-                          {showCorrect && <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />}
+                          {showCorrect && (
+                            <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                          )}
                           {showWrong && <XCircle className="h-4 w-4 text-red-600 shrink-0" />}
                         </div>
                       );
@@ -388,7 +500,10 @@ function QuizSection({ lectureId, userId }: { lectureId: string; userId?: string
           {submitted ? (
             <>
               <div className="text-sm">
-                Score: <span className="font-bold text-primary">{submitted.score}/{submitted.total}</span>
+                Score:{" "}
+                <span className="font-bold text-primary">
+                  {submitted.score}/{submitted.total}
+                </span>
                 {submitted.score === submitted.total && " — Perfect!"}
               </div>
               <Button variant="outline" size="sm" onClick={reset}>
@@ -397,7 +512,9 @@ function QuizSection({ lectureId, userId }: { lectureId: string; userId?: string
             </>
           ) : !userId ? (
             <div className="flex items-center justify-between w-full">
-              <span className="text-xs text-muted-foreground">Sign in to record your quiz score</span>
+              <span className="text-xs text-muted-foreground">
+                Sign in to record your quiz score
+              </span>
               <Button asChild size="sm" variant="outline">
                 <Link to="/auth">Sign in</Link>
               </Button>
@@ -408,7 +525,11 @@ function QuizSection({ lectureId, userId }: { lectureId: string; userId?: string
               disabled={submitQuiz.isPending || Object.keys(answers).length !== questions.length}
               className="shadow-scholarly"
             >
-              {submitQuiz.isPending ? <Spinner className="h-4 w-4 mr-1.5" /> : <CheckCircle2 className="h-4 w-4 mr-1.5" />}
+              {submitQuiz.isPending ? (
+                <Spinner className="h-4 w-4 mr-1.5" />
+              ) : (
+                <CheckCircle2 className="h-4 w-4 mr-1.5" />
+              )}
               Submit answers
             </Button>
           )}

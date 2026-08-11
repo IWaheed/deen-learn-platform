@@ -42,25 +42,35 @@ function QuestionsPage() {
           {questions.length === 0 ? (
             <Card className="p-10 text-center border-dashed">
               <MessageCircle className="h-10 w-10 mx-auto text-muted-foreground" />
-              <p className="mt-3 font-serif italic text-muted-foreground">You haven&rsquo;t asked anything yet. Open a lecture to send your first question.</p>
+              <p className="mt-3 font-serif italic text-muted-foreground">
+                You haven&rsquo;t asked anything yet. Open a lecture to send your first question.
+              </p>
             </Card>
           ) : (
             questions.map((q) => (
               <Card key={q.id} className="p-5">
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="font-serif text-lg text-primary">{q.subject}</h3>
-                  {q.answer
-                    ? <Badge className="bg-primary/10 text-primary hover:bg-primary/10">Answered</Badge>
-                    : <Badge variant="outline">Awaiting reply</Badge>}
+                  {q.answer ? (
+                    <Badge className="bg-primary/10 text-primary hover:bg-primary/10">
+                      Answered
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline">Awaiting reply</Badge>
+                  )}
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground whitespace-pre-wrap">{q.body}</p>
                 {q.answer && (
                   <div className="mt-4 pl-4 border-l-2 border-gold/60 bg-parchment/50 p-3 rounded-r">
-                    <div className="text-xs uppercase tracking-wider text-gold mb-1">Teacher&rsquo;s reply</div>
+                    <div className="text-xs uppercase tracking-wider text-gold mb-1">
+                      Teacher&rsquo;s reply
+                    </div>
                     <p className="text-sm whitespace-pre-wrap">{q.answer}</p>
                   </div>
                 )}
-                <div className="mt-3 text-xs text-muted-foreground">{new Date(q.created_at).toLocaleString()}</div>
+                <div className="mt-3 text-xs text-muted-foreground">
+                  {new Date(q.created_at).toLocaleString()}
+                </div>
               </Card>
             ))
           )}

@@ -62,7 +62,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
-            onClick={() => { router.invalidate(); reset(); }}
+            onClick={() => {
+              router.invalidate();
+              reset();
+            }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
             Try again
@@ -85,9 +88,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Deen Learn Platform — Islamic Studies Courses" },
-      { name: "description", content: "Study classical Islamic sciences with recorded lectures, notes, and one-to-one Q&A with your teacher." },
+      {
+        name: "description",
+        content:
+          "Study classical Islamic sciences with recorded lectures, notes, and one-to-one Q&A with your teacher.",
+      },
       { property: "og:title", content: "Deen Learn Platform — Islamic Studies Courses" },
-      { property: "og:description", content: "Recorded lectures, course documents, and direct Q&A with your teacher." },
+      {
+        property: "og:description",
+        content: "Recorded lectures, course documents, and direct Q&A with your teacher.",
+      },
       { property: "og:type", content: "website" },
       { property: "og:image", content: "/og-image.jpg" },
       { property: "og:image:width", content: "1600" },
@@ -110,7 +120,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <head><HeadContent /></head>
+      <head>
+        <HeadContent />
+      </head>
       <body>
         {children}
         <Scripts />
