@@ -19,7 +19,10 @@ export function LectureListSkeleton({ count = 5 }: { count?: number }) {
   return (
     <div className="space-y-3">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="flex items-center gap-4 rounded-xl border border-border/60 bg-card p-5">
+        <div
+          key={i}
+          className="flex items-center gap-4 rounded-xl border border-border/60 bg-card p-5"
+        >
           <Skeleton className="h-10 w-10 rounded-full shrink-0" />
           <div className="flex-1 space-y-2">
             <Skeleton className="h-5 w-2/3" />
