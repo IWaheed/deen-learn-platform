@@ -9,6 +9,20 @@ export const loginWithRollNumber = createServerFn({ method: "POST" })
     const { rollNumber, email } = data;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    // Rate limiting: max 5 requests per 15 minutes (900 seconds) per email (username)
+    const rateLimitIdentifier = `login_${email.toLowerCase()}`;
+    const { data: isAllowed, error: rateLimitError } = await supabaseAdmin.rpc('check_rate_limit', {
+      p_identifier: rateLimitIdentifier,
+      p_max_requests: 5,
+      p_window_seconds: 900
+    });
+
+    if (rateLimitError) {
+      console.error("Rate limit error:", rateLimitError);
+    } else if (!isAllowed) {
+      throw new Error("Too many login attempts. Please try again later.");
+    }
+
     const { data: users } = await supabaseAdmin.auth.admin.listUsers({ perPage: 10000 });
 
     const match = users?.users.find((u) => {
