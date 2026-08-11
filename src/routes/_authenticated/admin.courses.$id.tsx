@@ -10,7 +10,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Spinner } from "@/components/spinner";
 
@@ -36,7 +42,11 @@ function ManageCourse() {
   const { data: lectures = [] } = useQuery({
     queryKey: ["admin-lectures", id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("lectures").select("*").eq("course_id", id).order("position");
+      const { data, error } = await supabase
+        .from("lectures")
+        .select("*")
+        .eq("course_id", id)
+        .order("position");
       if (error) throw error;
       return data;
     },
@@ -53,7 +63,12 @@ function ManageCourse() {
   }
   function openEdit(l: any) {
     setEditing(l);
-    setForm({ title: l.title, description: l.description ?? "", youtube_url: l.youtube_url ?? "", position: l.position });
+    setForm({
+      title: l.title,
+      description: l.description ?? "",
+      youtube_url: l.youtube_url ?? "",
+      position: l.position,
+    });
     setOpen(true);
   }
 
@@ -74,7 +89,11 @@ function ManageCourse() {
         if (error) throw error;
       }
     },
-    onSuccess: () => { toast.success("Saved"); setOpen(false); qc.invalidateQueries({ queryKey: ["admin-lectures", id] }); },
+    onSuccess: () => {
+      toast.success("Saved");
+      setOpen(false);
+      qc.invalidateQueries({ queryKey: ["admin-lectures", id] });
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -83,42 +102,90 @@ function ManageCourse() {
       const { error } = await supabase.from("lectures").delete().eq("id", lectureId);
       if (error) throw error;
     },
-    onSuccess: () => { toast.success("Deleted"); qc.invalidateQueries({ queryKey: ["admin-lectures", id] }); },
+    onSuccess: () => {
+      toast.success("Deleted");
+      qc.invalidateQueries({ queryKey: ["admin-lectures", id] });
+    },
   });
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-10">
-      <Link to="/admin" className="text-sm text-muted-foreground hover:text-primary inline-flex items-center gap-1.5 mb-4">
+      <Link
+        to="/admin"
+        className="text-sm text-muted-foreground hover:text-primary inline-flex items-center gap-1.5 mb-4"
+      >
         <ArrowLeft className="h-3.5 w-3.5" /> All courses
       </Link>
       <div className="flex items-end justify-between mb-6">
         <div>
           <h1 className="font-serif text-3xl text-primary">{course?.title ?? "Course"}</h1>
-          <p className="text-sm text-muted-foreground mt-1">Manage lectures, documents, and quiz questions.</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Manage lectures, documents, and quiz questions.
+          </p>
         </div>
-        <Button onClick={openNew}><Plus className="h-4 w-4 mr-1.5" /> New lecture</Button>
+        <Button onClick={openNew}>
+          <Plus className="h-4 w-4 mr-1.5" /> New lecture
+        </Button>
       </div>
 
       <div className="space-y-3">
         {lectures.map((l) => (
-          <LectureRow key={l.id} lecture={l} onEdit={() => openEdit(l)} onDelete={() => del.mutate(l.id)} />
+          <LectureRow
+            key={l.id}
+            lecture={l}
+            onEdit={() => openEdit(l)}
+            onDelete={() => del.mutate(l.id)}
+          />
         ))}
         {lectures.length === 0 && (
-          <Card className="p-8 text-center border-dashed text-muted-foreground italic font-serif">No lectures yet.</Card>
+          <Card className="p-8 text-center border-dashed text-muted-foreground italic font-serif">
+            No lectures yet.
+          </Card>
         )}
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>{editing ? "Edit lecture" : "New lecture"}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>{editing ? "Edit lecture" : "New lecture"}</DialogTitle>
+          </DialogHeader>
           <div className="space-y-3">
-            <div><Label>Title</Label><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></div>
-            <div><Label>Description</Label><Textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
-            <div><Label>YouTube URL</Label><Input value={form.youtube_url} onChange={(e) => setForm({ ...form, youtube_url: e.target.value })} placeholder="https://youtube.com/watch?v=…" /></div>
-            <div><Label>Position (order)</Label><Input type="number" value={form.position} onChange={(e) => setForm({ ...form, position: Number(e.target.value) })} /></div>
+            <div>
+              <Label>Title</Label>
+              <Input
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Textarea
+                rows={3}
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>YouTube URL</Label>
+              <Input
+                value={form.youtube_url}
+                onChange={(e) => setForm({ ...form, youtube_url: e.target.value })}
+                placeholder="https://youtube.com/watch?v=…"
+              />
+            </div>
+            <div>
+              <Label>Position (order)</Label>
+              <Input
+                type="number"
+                value={form.position}
+                onChange={(e) => setForm({ ...form, position: Number(e.target.value) })}
+              />
+            </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
             <Button onClick={() => save.mutate()} disabled={save.isPending || !form.title.trim()}>
               {save.isPending ? <Spinner className="h-4 w-4" /> : null}
               Save
@@ -130,14 +197,26 @@ function ManageCourse() {
   );
 }
 
-function LectureRow({ lecture, onEdit, onDelete }: { lecture: any; onEdit: () => void; onDelete: () => void }) {
+function LectureRow({
+  lecture,
+  onEdit,
+  onDelete,
+}: {
+  lecture: any;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const { data: docs = [] } = useQuery({
     queryKey: ["admin-docs", lecture.id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("lecture_documents").select("*").eq("lecture_id", lecture.id).order("created_at");
+      const { data, error } = await supabase
+        .from("lecture_documents")
+        .select("*")
+        .eq("lecture_id", lecture.id)
+        .order("created_at");
       if (error) throw error;
       return data;
     },
@@ -146,7 +225,11 @@ function LectureRow({ lecture, onEdit, onDelete }: { lecture: any; onEdit: () =>
   const { data: questions = [] } = useQuery({
     queryKey: ["admin-questions", lecture.id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("quiz_questions").select("*").eq("lecture_id", lecture.id).order("position");
+      const { data, error } = await supabase
+        .from("quiz_questions")
+        .select("*")
+        .eq("lecture_id", lecture.id)
+        .order("position");
       if (error) throw error;
       return data;
     },
@@ -154,16 +237,22 @@ function LectureRow({ lecture, onEdit, onDelete }: { lecture: any; onEdit: () =>
 
   const upload = useMutation({
     mutationFn: async (file: File) => {
-      const safeName = file.name.replace(/[/\\:*?"<>|&\s]+/g, '_');
+      const safeName = file.name.replace(/[/\\:*?"<>|&\s]+/g, "_");
       const path = `${lecture.id}/${Date.now()}-${safeName}`;
       const { error: upErr } = await supabase.storage.from("lecture-docs").upload(path, file);
       if (upErr) throw upErr;
       const { error } = await supabase.from("lecture_documents").insert({
-        lecture_id: lecture.id, name: file.name, storage_path: path, size_bytes: file.size,
+        lecture_id: lecture.id,
+        name: file.name,
+        storage_path: path,
+        size_bytes: file.size,
       });
       if (error) throw error;
     },
-    onSuccess: () => { toast.success("Uploaded"); qc.invalidateQueries({ queryKey: ["admin-docs", lecture.id] }); },
+    onSuccess: () => {
+      toast.success("Uploaded");
+      qc.invalidateQueries({ queryKey: ["admin-docs", lecture.id] });
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -181,18 +270,31 @@ function LectureRow({ lecture, onEdit, onDelete }: { lecture: any; onEdit: () =>
   const [qForm, setQForm] = useState({
     question_text: "",
     question_text_urdu: "",
-    option_a: "", option_b: "", option_c: "", option_d: "",
-    option_a_urdu: "", option_b_urdu: "", option_c_urdu: "", option_d_urdu: "",
+    option_a: "",
+    option_b: "",
+    option_c: "",
+    option_d: "",
+    option_a_urdu: "",
+    option_b_urdu: "",
+    option_c_urdu: "",
+    option_d_urdu: "",
     correct_option_id: "a",
   });
 
   function openNewQ() {
     setQEditing(null);
     setQForm({
-      question_text: "", question_text_urdu: "",
-      option_a: "", option_b: "", option_c: "", option_d: "",
-      option_a_urdu: "", option_b_urdu: "", option_c_urdu: "", option_d_urdu: "",
-      correct_option_id: "a"
+      question_text: "",
+      question_text_urdu: "",
+      option_a: "",
+      option_b: "",
+      option_c: "",
+      option_d: "",
+      option_a_urdu: "",
+      option_b_urdu: "",
+      option_c_urdu: "",
+      option_d_urdu: "",
+      correct_option_id: "a",
     });
     setQOpen(true);
   }
@@ -226,7 +328,7 @@ function LectureRow({ lecture, onEdit, onDelete }: { lecture: any; onEdit: () =>
       const options = OPTION_LABELS.map((id) => ({
         id,
         text: (qForm as any)[`option_${id}`].trim(),
-        urdu_text: (qForm as any)[`option_${id}_urdu`]?.trim() || null
+        urdu_text: (qForm as any)[`option_${id}_urdu`]?.trim() || null,
       }));
       const payload = {
         lecture_id: lecture.id,
@@ -237,14 +339,21 @@ function LectureRow({ lecture, onEdit, onDelete }: { lecture: any; onEdit: () =>
         position: qEditing ? qEditing.position : questions.length,
       };
       if (qEditing) {
-        const { error } = await supabase.from("quiz_questions").update(payload).eq("id", qEditing.id);
+        const { error } = await supabase
+          .from("quiz_questions")
+          .update(payload)
+          .eq("id", qEditing.id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("quiz_questions").insert(payload);
         if (error) throw error;
       }
     },
-    onSuccess: () => { toast.success("Question saved"); setQOpen(false); qc.invalidateQueries({ queryKey: ["admin-questions", lecture.id] }); },
+    onSuccess: () => {
+      toast.success("Question saved");
+      setQOpen(false);
+      qc.invalidateQueries({ queryKey: ["admin-questions", lecture.id] });
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -253,10 +362,17 @@ function LectureRow({ lecture, onEdit, onDelete }: { lecture: any; onEdit: () =>
       const { error } = await supabase.from("quiz_questions").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => { toast.success("Question deleted"); qc.invalidateQueries({ queryKey: ["admin-questions", lecture.id] }); },
+    onSuccess: () => {
+      toast.success("Question deleted");
+      qc.invalidateQueries({ queryKey: ["admin-questions", lecture.id] });
+    },
   });
 
-  const qInvalid = !qForm.question_text.trim() || !qForm.option_a.trim() || !qForm.option_b.trim() || !qForm.option_c.trim() || !qForm.option_d.trim();
+  const isQuestionTextMissing = !qForm.question_text.trim();
+  const isAnyOptionMissing = OPTION_LABELS.some(
+    (id) => !qForm[`option_${id}` as keyof typeof qForm].trim()
+  );
+  const qInvalid = isQuestionTextMissing || isAnyOptionMissing;
 
   return (
     <Card className="p-5">
@@ -266,12 +382,24 @@ function LectureRow({ lecture, onEdit, onDelete }: { lecture: any; onEdit: () =>
             <span className="text-xs text-muted-foreground">#{lecture.position}</span>
             <h3 className="font-serif text-lg text-primary truncate">{lecture.title}</h3>
           </div>
-          {lecture.youtube_url && <div className="text-xs text-muted-foreground truncate mt-0.5">{lecture.youtube_url}</div>}
+          {lecture.youtube_url && (
+            <div className="text-xs text-muted-foreground truncate mt-0.5">
+              {lecture.youtube_url}
+            </div>
+          )}
         </div>
         <div className="flex gap-1">
-          <Button size="sm" variant="ghost" onClick={onEdit}><Pencil className="h-4 w-4" /></Button>
-          <ConfirmDialog title="Delete this lecture?" description="This will permanently remove the lecture and all its documents." onConfirm={onDelete}>
-            <Button size="sm" variant="ghost"><Trash2 className="h-4 w-4 text-destructive" /></Button>
+          <Button size="sm" variant="ghost" onClick={onEdit}>
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <ConfirmDialog
+            title="Delete this lecture?"
+            description="This will permanently remove the lecture and all its documents."
+            onConfirm={onDelete}
+          >
+            <Button size="sm" variant="ghost">
+              <Trash2 className="h-4 w-4 text-destructive" />
+            </Button>
           </ConfirmDialog>
         </div>
       </div>
@@ -282,7 +410,12 @@ function LectureRow({ lecture, onEdit, onDelete }: { lecture: any; onEdit: () =>
           <div key={d.id} className="flex items-center gap-2 text-sm">
             <FileText className="h-4 w-4 text-primary shrink-0" />
             <span className="flex-1 truncate">{d.name}</span>
-            <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => delDoc.mutate(d)}>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 w-7 p-0"
+              onClick={() => delDoc.mutate(d)}
+            >
               <Trash2 className="h-3.5 w-3.5 text-destructive" />
             </Button>
           </div>
@@ -292,10 +425,20 @@ function LectureRow({ lecture, onEdit, onDelete }: { lecture: any; onEdit: () =>
             ref={fileRef}
             type="file"
             className="hidden"
-            onChange={(e) => { const f = e.target.files?.[0]; if (f) upload.mutate(f); e.target.value = ""; }}
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) upload.mutate(f);
+              e.target.value = "";
+            }}
           />
-          <Button size="sm" variant="outline" onClick={() => fileRef.current?.click()} disabled={upload.isPending}>
-            <Upload className="h-3.5 w-3.5 mr-1.5" /> {upload.isPending ? "Uploading…" : "Attach document"}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => fileRef.current?.click()}
+            disabled={upload.isPending}
+          >
+            <Upload className="h-3.5 w-3.5 mr-1.5" />{" "}
+            {upload.isPending ? "Uploading…" : "Attach document"}
           </Button>
         </div>
       </div>
@@ -313,21 +456,36 @@ function LectureRow({ lecture, onEdit, onDelete }: { lecture: any; onEdit: () =>
             <div className="flex-1 min-w-0">
               <div className="truncate font-medium">{q.question_text}</div>
               {q.question_text_urdu && (
-                <div className="truncate font-medium font-arabic mt-0.5" dir="rtl">{q.question_text_urdu}</div>
+                <div className="truncate font-medium font-arabic mt-0.5" dir="rtl">
+                  {q.question_text_urdu}
+                </div>
               )}
               <div className="text-xs text-muted-foreground mt-0.5">
                 {(q.options as any[]).map((o: any) => (
-                  <span key={o.id} className={o.id === q.correct_option_id ? "text-green-600 font-medium" : ""}>
-                    {o.id.toUpperCase()}. {o.text} {o.urdu_text ? `(${o.urdu_text})` : ""}{o.id === q.correct_option_id ? " ✓" : ""}{" "}
+                  <span
+                    key={o.id}
+                    className={o.id === q.correct_option_id ? "text-green-600 font-medium" : ""}
+                  >
+                    {o.id.toUpperCase()}. {o.text} {o.urdu_text ? `(${o.urdu_text})` : ""}
+                    {o.id === q.correct_option_id ? " ✓" : ""}{" "}
                   </span>
                 ))}
               </div>
             </div>
             <div className="flex gap-1 shrink-0">
-              <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => openEditQ(q)}>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 w-7 p-0"
+                onClick={() => openEditQ(q)}
+              >
                 <Pencil className="h-3.5 w-3.5" />
               </Button>
-              <ConfirmDialog title="Delete this question?" description="This will permanently remove this quiz question." onConfirm={() => delQ.mutate(q.id)}>
+              <ConfirmDialog
+                title="Delete this question?"
+                description="This will permanently remove this quiz question."
+                onConfirm={() => delQ.mutate(q.id)}
+              >
                 <Button size="sm" variant="ghost" className="h-7 w-7 p-0">
                   <Trash2 className="h-3.5 w-3.5 text-destructive" />
                 </Button>
@@ -343,33 +501,77 @@ function LectureRow({ lecture, onEdit, onDelete }: { lecture: any; onEdit: () =>
       {/* Question dialog */}
       <Dialog open={qOpen} onOpenChange={setQOpen}>
         <DialogContent className="sm:max-w-lg">
-          <DialogHeader><DialogTitle>{qEditing ? "Edit question" : "New question"}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>{qEditing ? "Edit question" : "New question"}</DialogTitle>
+          </DialogHeader>
           <div className="space-y-3 max-h-[70vh] overflow-y-auto px-1">
-            <div><Label>Question text (English)</Label><Textarea rows={2} value={qForm.question_text} onChange={(e) => setQForm({ ...qForm, question_text: e.target.value })} /></div>
-            <div><Label>Question text (Urdu)</Label><Textarea rows={2} dir="rtl" className="font-arabic" value={qForm.question_text_urdu} onChange={(e) => setQForm({ ...qForm, question_text_urdu: e.target.value })} /></div>
+            <div>
+              <Label>Question text (English)</Label>
+              <Textarea
+                rows={2}
+                value={qForm.question_text}
+                onChange={(e) => setQForm({ ...qForm, question_text: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>Question text (Urdu)</Label>
+              <Textarea
+                rows={2}
+                dir="rtl"
+                className="font-arabic"
+                value={qForm.question_text_urdu}
+                onChange={(e) => setQForm({ ...qForm, question_text_urdu: e.target.value })}
+              />
+            </div>
             <div className="space-y-3 mt-4">
               {OPTION_LABELS.map((id) => (
                 <div key={id} className="grid grid-cols-2 gap-3 p-3 border rounded-md">
                   <div className="col-span-2 font-medium text-sm">Option {id.toUpperCase()}</div>
-                  <div><Label className="text-xs">English</Label><Input value={(qForm as any)[`option_${id}`]} onChange={(e) => setQForm({ ...qForm as any, [`option_${id}`]: e.target.value })} /></div>
-                  <div><Label className="text-xs">Urdu</Label><Input dir="rtl" className="font-arabic" value={(qForm as any)[`option_${id}_urdu`]} onChange={(e) => setQForm({ ...qForm as any, [`option_${id}_urdu`]: e.target.value })} /></div>
+                  <div>
+                    <Label className="text-xs">English</Label>
+                    <Input
+                      value={(qForm as any)[`option_${id}`]}
+                      onChange={(e) =>
+                        setQForm({ ...(qForm as any), [`option_${id}`]: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Urdu</Label>
+                    <Input
+                      dir="rtl"
+                      className="font-arabic"
+                      value={(qForm as any)[`option_${id}_urdu`]}
+                      onChange={(e) =>
+                        setQForm({ ...(qForm as any), [`option_${id}_urdu`]: e.target.value })
+                      }
+                    />
+                  </div>
                 </div>
               ))}
             </div>
             <div className="pt-2">
               <Label>Correct answer</Label>
-              <RadioGroup value={qForm.correct_option_id} onValueChange={(v) => setQForm({ ...qForm, correct_option_id: v })} className="flex gap-4 mt-1">
+              <RadioGroup
+                value={qForm.correct_option_id}
+                onValueChange={(v) => setQForm({ ...qForm, correct_option_id: v })}
+                className="flex gap-4 mt-1"
+              >
                 {OPTION_LABELS.map((id) => (
                   <div key={id} className="flex items-center gap-1.5">
                     <RadioGroupItem value={id} id={`correct-${id}`} />
-                    <Label htmlFor={`correct-${id}`} className="text-sm">{id.toUpperCase()}. {(qForm as any)[`option_${id}`] || "(empty)"}</Label>
+                    <Label htmlFor={`correct-${id}`} className="text-sm">
+                      {id.toUpperCase()}. {(qForm as any)[`option_${id}`] || "(empty)"}
+                    </Label>
                   </div>
                 ))}
               </RadioGroup>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setQOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setQOpen(false)}>
+              Cancel
+            </Button>
             <Button onClick={() => saveQ.mutate()} disabled={saveQ.isPending || qInvalid}>
               {saveQ.isPending ? <Spinner className="h-4 w-4" /> : null}
               Save
