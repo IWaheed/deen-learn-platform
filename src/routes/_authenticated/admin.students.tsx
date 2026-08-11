@@ -1,44 +1,75 @@
 import { createFileRoute } from "@tanstack/react-router";
+import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Users, GraduationCap, Calendar, Mail } from "lucide-react";
+import { Users, GraduationCap, Calendar, Mail, ChevronLeft, ChevronRight } from "lucide-react";
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AnimateIn } from "@/components/animate-in";
 import { Skeleton } from "@/components/skeleton";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
-const listStudents = createServerFn({ method: 'GET' })
-  .handler(async () => {
-    const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-    const { data } = await supabaseAdmin.auth.admin.listUsers({ perPage: 10000 })
-    return (data?.users ?? [])
-      .filter(u => u.email)
-      .map(u => ({
+const listStudents = createServerFn({ method: "GET" })
+  .validator(
+    z.object({
+      page: z.number().optional().default(1),
+      limit: z.number().optional().default(50),
+    }),
+  )
+  .handler(async ({ data: { page, limit } }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin.auth.admin.listUsers({
+      page: page,
+      perPage: limit,
+    });
+
+    const users = (data?.users ?? [])
+      .filter((u) => u.email)
+      .map((u) => ({
         id: u.id,
         email: u.email!,
-        fullName: (u.user_metadata?.full_name as string) ?? u.email!.split('@')[0],
+        fullName: (u.user_metadata?.full_name as string) ?? u.email!.split("@")[0],
         rollNumber: (u.user_metadata?.roll_number as string) ?? null,
         enrolledCourses: (u.user_metadata?.enrolled_courses as string[]) ?? [],
         createdAt: u.created_at,
       }))
       .sort((a, b) => {
-        if (!a.rollNumber) return 1
-        if (!b.rollNumber) return -1
-        return a.rollNumber.localeCompare(b.rollNumber)
-      })
-  })
+        if (!a.rollNumber) return 1;
+        if (!b.rollNumber) return -1;
+        return a.rollNumber.localeCompare(b.rollNumber);
+      });
+
+    return {
+      users,
+      page,
+      limit,
+      hasMore: data?.users?.length === limit,
+    };
+  });
 
 export const Route = createFileRoute("/_authenticated/admin/students")({
   component: AdminStudentsPage,
   head: () => ({ meta: [{ title: "Students — Admin — Deen Learn Platform" }] }),
-})
+});
 
 function AdminStudentsPage() {
-  const { data: students = [], isLoading } = useQuery({
-    queryKey: ["admin", "students"],
-    queryFn: listStudents,
-  })
+  const [page, setPage] = React.useState(1);
+
+  const { data: result, isLoading } = useQuery({
+    queryKey: ["admin", "students", page],
+    queryFn: () => listStudents({ data: { page, limit: 50 } }),
+  });
+
+  const students = result?.users ?? [];
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
@@ -48,7 +79,9 @@ function AdminStudentsPage() {
         </div>
         <div>
           <h1 className="font-serif text-2xl text-primary">Students</h1>
-          <p className="text-sm text-muted-foreground">{students.length} registered student{students.length !== 1 ? 's' : ''}</p>
+          <p className="text-sm text-muted-foreground">
+            Showing {students.length} student{students.length !== 1 ? "s" : ""}
+          </p>
         </div>
       </div>
 
@@ -68,11 +101,21 @@ function AdminStudentsPage() {
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    <TableCell><Skeleton className="h-5 w-20" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-32" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-48" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-16" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 w-20" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 w-32" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 w-48" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 w-16" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 w-24" />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : students.length === 0 ? (
@@ -91,7 +134,9 @@ function AdminStudentsPage() {
                       {s.rollNumber ? (
                         <span className="font-mono font-medium">{s.rollNumber}</span>
                       ) : (
-                        <Badge variant="outline" className="text-xs">None</Badge>
+                        <Badge variant="outline" className="text-xs">
+                          None
+                        </Badge>
                       )}
                     </TableCell>
                     <TableCell className="font-medium">{s.fullName}</TableCell>
@@ -112,7 +157,33 @@ function AdminStudentsPage() {
             </TableBody>
           </Table>
         </div>
+
+        {((!isLoading && (result?.page ?? 1) > 1) || result?.hasMore) && (
+          <div className="flex items-center justify-between px-6 py-4 border-t">
+            <div className="text-sm text-muted-foreground">Page {result?.page ?? 1}</div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page === 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={!result?.hasMore}
+                onClick={() => setPage((p) => p + 1)}
+              >
+                Next
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
+          </div>
+        )}
       </Card>
     </div>
-  )
+  );
 }
