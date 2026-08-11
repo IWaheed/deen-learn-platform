@@ -301,6 +301,25 @@ export type Database = {
           },
         ]
       }
+      rate_limits: {
+        Row: {
+          count: number
+          identifier: string
+          last_request_at: string
+        }
+        Insert: {
+          count?: number
+          identifier: string
+          last_request_at?: string
+        }
+        Update: {
+          count?: number
+          identifier?: string
+          last_request_at?: string
+        }
+        Relationships: []
+      }
+
       user_roles: {
         Row: {
           id: string
@@ -324,6 +343,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_rate_limit: {
+        Args: {
+          p_identifier: string
+          p_max_requests: number
+          p_window_seconds: number
+        }
+        Returns: boolean
+      }
+
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
