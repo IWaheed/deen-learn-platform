@@ -8,6 +8,7 @@ export const registerForCourse = createServerFn({ method: "POST" })
     (input: {
       fullNameEn: string;
       fullNameUr: string;
+      gender: string;
       email: string;
       password?: string;
       age: string;
@@ -26,9 +27,9 @@ export const registerForCourse = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers({ perPage: 10000 });
-    const existingUser = existingUsers?.users.find(
-      (u) => u.email?.toLowerCase() === input.email.toLowerCase(),
-    ) ?? null;
+    const existingUser =
+      existingUsers?.users.find((u) => u.email?.toLowerCase() === input.email.toLowerCase()) ??
+      null;
 
     let userId: string;
     let rollNumber: string = "";
@@ -92,6 +93,7 @@ export const registerForCourse = createServerFn({ method: "POST" })
         roll_number: rollNumber,
         enrolled_courses: enrolled,
         reg_name_ur: input.fullNameUr,
+        reg_gender: input.gender,
         reg_age: input.age,
         reg_phone: input.phoneNumber,
         reg_education: input.education,

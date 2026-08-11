@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { FileDown, ScrollText } from "lucide-react";
@@ -12,6 +13,7 @@ interface Registration {
   rollNumber: string;
   fullNameEn: string;
   fullNameUr: string;
+  gender: string;
   email: string;
   age: string;
   phoneNumber: string;
@@ -46,6 +48,7 @@ function extractRegistrations(
         rollNumber: (m.roll_number as string) ?? "",
         fullNameEn: (m.full_name as string) ?? "",
         fullNameUr: (m.reg_name_ur as string) ?? "",
+        gender: (m.reg_gender as string) ?? "",
         email: u.email ?? "",
         age: (m.reg_age as string) ?? "",
         phoneNumber: (m.reg_phone as string) ?? "",
@@ -53,7 +56,8 @@ function extractRegistrations(
         islamicEducation: (m.reg_islamic_education as string) ?? "",
         scholarsListenedTo: (m.reg_scholars as string) ?? "",
         howHeard: (m.reg_how_heard as string) ?? "",
-        completedLevel1: m.reg_completed_level_1 === true ? "Yes" : m.reg_completed_level_1 === false ? "No" : "",
+        completedLevel1:
+          m.reg_completed_level_1 === true ? "Yes" : m.reg_completed_level_1 === false ? "No" : "",
         promiseToParticipate: m.reg_promise === true ? "Yes" : m.reg_promise === false ? "No" : "",
         createdAt: u.created_at,
       };
@@ -78,6 +82,7 @@ export const downloadCsv = createServerFn({ method: "POST" }).handler(async () =
     "Roll Number",
     "Full Name (EN)",
     "Full Name (UR)",
+    "Gender",
     "Email",
     "Age",
     "Phone",
@@ -94,6 +99,7 @@ export const downloadCsv = createServerFn({ method: "POST" }).handler(async () =
       r.rollNumber,
       r.fullNameEn,
       r.fullNameUr,
+      r.gender,
       r.email,
       r.age,
       r.phoneNumber,
@@ -119,10 +125,16 @@ export const Route = createFileRoute("/_authenticated/admin/registrations")({
 });
 
 function AdminRegistrationsPage() {
+  const [genderFilter, setGenderFilter] = useState("all");
+
   const { data: registrations = [], isLoading } = useQuery({
     queryKey: ["admin", "registrations"],
     queryFn: listRegistrations,
   });
+
+  const filteredRegistrations = registrations.filter(
+    (r) => genderFilter === "all" || r.gender === genderFilter,
+  );
 
   async function handleDownload() {
     const csv = await downloadCsv();
@@ -145,14 +157,27 @@ function AdminRegistrationsPage() {
           <div>
             <h1 className="font-serif text-2xl text-primary">Registrations</h1>
             <p className="text-sm text-muted-foreground">
-              {registrations.length} registration{registrations.length !== 1 ? "s" : ""}
+              {filteredRegistrations.length} registration
+              {filteredRegistrations.length !== 1 ? "s" : ""}
             </p>
           </div>
         </div>
-        <Button onClick={handleDownload} disabled={registrations.length === 0}>
-          <FileDown className="h-4 w-4 mr-2" />
-          Download CSV
-        </Button>
+
+        <div className="flex items-center gap-4">
+          <select
+            value={genderFilter}
+            onChange={(e) => setGenderFilter(e.target.value)}
+            className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <option value="all">All Genders</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+          <Button onClick={handleDownload} disabled={registrations.length === 0}>
+            <FileDown className="h-4 w-4 mr-2" />
+            Download CSV
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -161,7 +186,7 @@ function AdminRegistrationsPage() {
             <Skeleton key={i} className="h-16 w-full rounded-xl" />
           ))}
         </div>
-      ) : registrations.length === 0 ? (
+      ) : filteredRegistrations.length === 0 ? (
         <Card className="p-12 text-center border-dashed">
           <ScrollText className="h-10 w-10 mx-auto text-muted-foreground" />
           <p className="mt-4 text-muted-foreground font-serif italic text-lg">
@@ -175,14 +200,17 @@ function AdminRegistrationsPage() {
               <tr className="bg-muted/50 text-left">
                 <th className="p-3 font-medium text-muted-foreground">Roll No</th>
                 <th className="p-3 font-medium text-muted-foreground">Name</th>
+                <th className="p-3 font-medium text-muted-foreground">Gender</th>
                 <th className="p-3 font-medium text-muted-foreground">Email</th>
                 <th className="p-3 font-medium text-muted-foreground">Phone</th>
+                <th className="p-3 font-medium text-muted-foreground">Age</th>
                 <th className="p-3 font-medium text-muted-foreground">Education</th>
+                <th className="p-3 font-medium text-muted-foreground">Islamic Ed.</th>
                 <th className="p-3 font-medium text-muted-foreground">Date</th>
               </tr>
             </thead>
             <tbody>
-              {registrations.map((r, i) => (
+              {filteredRegistrations.map((r, i) => (
                 <AnimateIn key={r.id} animation="fade-in" delay={i * 20}>
                   <tr className="border-t border-border/40 hover:bg-muted/20 transition-colors">
                     <td className="p-3 font-mono text-primary font-bold">{r.rollNumber || "—"}</td>
@@ -192,9 +220,12 @@ function AdminRegistrationsPage() {
                         {r.fullNameUr}
                       </div>
                     </td>
+                    <td className="p-3 text-muted-foreground">{r.gender || "—"}</td>
                     <td className="p-3 text-muted-foreground">{r.email}</td>
                     <td className="p-3 text-muted-foreground">{r.phoneNumber}</td>
+                    <td className="p-3 text-muted-foreground">{r.age}</td>
                     <td className="p-3 text-muted-foreground">{r.education}</td>
+                    <td className="p-3 text-muted-foreground">{r.islamicEducation}</td>
                     <td className="p-3 text-muted-foreground text-xs">
                       {new Date(r.createdAt).toLocaleDateString()}
                     </td>
