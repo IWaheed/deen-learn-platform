@@ -1,31 +1,39 @@
-import { createServerFn } from '@tanstack/react-start'
+import { createServerFn } from "@tanstack/react-start";
 
-const ROLL_MIN = 3030000
-const ROLL_MAX = 3099999
+const ROLL_MIN = 3030000;
+const ROLL_MAX = 3099999;
 
-export const getNextRollNumber = createServerFn({ method: 'GET' })
-  .handler(async () => {
-    const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
+export const getNextRollNumber = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: users } = await supabaseAdmin.auth.admin.listUsers({ perPage: 10000 })
+  let roll: number;
+  let isTaken = true;
+  let attempts = 0;
+  const maxAttempts = 100; // Prevent infinite loops just in case
 
-    const taken = new Set<number>()
-    for (const u of users?.users ?? []) {
-      const rn = u.user_metadata?.roll_number as string | undefined
-      if (rn) {
-        const num = parseInt(rn, 10)
-        if (!isNaN(num)) taken.add(num)
-      }
+  while (isTaken && attempts < maxAttempts) {
+    roll = ROLL_MIN + Math.floor(Math.random() * (ROLL_MAX - ROLL_MIN + 1));
+
+    const { data, error } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .eq("roll_number", String(roll))
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(`Database error while checking roll number: ${error.message}`);
     }
 
-    if (taken.size >= ROLL_MAX - ROLL_MIN + 1) {
-      throw new Error("No available roll numbers")
+    if (!data) {
+      isTaken = false;
     }
+    attempts++;
+  }
 
-    let roll: number
-    do {
-      roll = ROLL_MIN + Math.floor(Math.random() * (ROLL_MAX - ROLL_MIN + 1))
-    } while (taken.has(roll))
+  if (isTaken) {
+    throw new Error("Failed to find an available roll number after multiple attempts");
+  }
 
-    return String(roll)
-  })
+  return String(roll!);
+});
